@@ -1,0 +1,41 @@
+# Local agent skill caches / environment artifacts
+.adal/
+.agent/
+.agents/
+.augment/
+.claude/
+.codebuddy/
+.commandcode/
+.continue/
+.crush/
+.factory/
+.goose/
+.junie/
+.kilocode/
+.kiro/
+.kode/
+.mcpjam/
+.mux/
+.neovate/
+.openhands/
+.pi/
+.pochi/
+.qoder/
+.qwen/
+.roo/
+.trae/
+.vibe/
+.windsurf/
+.zencoder/
+skills/
+skills-lock.json
+
+# Node
+node_modules/
+
+# Rust
+target/
+
+# Connector build artifacts
+apps/connector/src-tauri/target/
+apps/connector/node_modules/
