@@ -1,18 +1,18 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OpenClaw Connector",
+  "productName": "OpenClaw 连接器",
   "version": "0.1.0",
   "identifier": "ai.openclaw.connector",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist",
-    "devUrl": "http://localhost:5173"
+    "devUrl": "http://localhost:5187"
   },
   "app": {
     "windows": [
       {
-        "title": "OpenClaw Connector",
+        "title": "OpenClaw 连接器",
         "width": 1280,
         "height": 800
       }

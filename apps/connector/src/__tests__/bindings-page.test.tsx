@@ -10,9 +10,9 @@ vi.mock("@tauri-apps/api/core", () => ({
 test("set binding triggers set_agent_binding command", async () => {
   render(<BindingsPage />);
 
-  fireEvent.change(screen.getByLabelText("Agent ID"), { target: { value: "main" } });
-  fireEvent.change(screen.getByLabelText("Node ID"), { target: { value: "mac-node-1" } });
-  fireEvent.click(screen.getByRole("button", { name: "Set Binding" }));
+  fireEvent.change(screen.getByLabelText("Agent 标识"), { target: { value: "main" } });
+  fireEvent.change(screen.getByLabelText("Node 标识"), { target: { value: "mac-node-1" } });
+  fireEvent.click(screen.getByRole("button", { name: "保存绑定" }));
 
   await waitFor(() => {
     expect(invokeMock).toHaveBeenCalledWith("set_agent_binding", {

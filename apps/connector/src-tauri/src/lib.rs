@@ -41,31 +41,53 @@ fn save_app_config(app_handle: tauri::AppHandle, cfg: config::AppConfig) -> Resu
 }
 
 #[tauri::command]
-fn start_tunnel(state: tauri::State<'_, AppState>, server: config::ServerConfig) -> Result<(), String> {
-    state
+fn start_tunnel(
+    state: tauri::State<'_, AppState>,
+    server: config::ServerConfig,
+) -> Result<ssh_tunnel::TunnelStatus, String> {
+    let mut tunnel = state
         .tunnel
         .lock()
-        .map_err(|_| "failed to acquire tunnel lock".to_string())?
-        .start(server)
+        .map_err(|_| "failed to acquire tunnel lock".to_string())?;
+
+    eprintln!(
+        "[connector] start_tunnel host={} user={} local_port={} remote_port={}",
+        server.host, server.user, server.local_port, server.remote_port
+    );
+    match tunnel.start(server) {
+        Ok(()) => {
+            let status = tunnel.refresh_status();
+            eprintln!("[connector] start_tunnel success state={:?}", status.state);
+            Ok(status)
+        }
+        Err(err) => {
+            eprintln!("[connector] start_tunnel failed: {err}");
+            Err(err)
+        }
+    }
 }
 
 #[tauri::command]
-fn stop_tunnel(state: tauri::State<'_, AppState>) -> Result<(), String> {
-    state
+fn stop_tunnel(state: tauri::State<'_, AppState>) -> Result<ssh_tunnel::TunnelStatus, String> {
+    let mut tunnel = state
         .tunnel
         .lock()
-        .map_err(|_| "failed to acquire tunnel lock".to_string())?
-        .stop()
+        .map_err(|_| "failed to acquire tunnel lock".to_string())?;
+
+    eprintln!("[connector] stop_tunnel");
+    tunnel.stop()?;
+    let status = tunnel.refresh_status();
+    eprintln!("[connector] stop_tunnel state={:?}", status.state);
+    Ok(status)
 }
 
 #[tauri::command]
 fn get_tunnel_status(state: tauri::State<'_, AppState>) -> Result<ssh_tunnel::TunnelStatus, String> {
-    let status = state
+    let mut tunnel = state
         .tunnel
         .lock()
-        .map_err(|_| "failed to acquire tunnel lock".to_string())?
-        .status();
-    Ok(status)
+        .map_err(|_| "failed to acquire tunnel lock".to_string())?;
+    Ok(tunnel.refresh_status())
 }
 
 #[tauri::command]
