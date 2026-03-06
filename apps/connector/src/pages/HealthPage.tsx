@@ -1,10 +1,32 @@
+import { invoke } from "@tauri-apps/api/core";
+import { useEffect, useState } from "react";
 import { mapHealthSummary, type HealthSummary } from "../types/health";
 
-type HealthPageProps = {
-  summary: HealthSummary;
+const defaultSummary: HealthSummary = {
+  latencyMs: 0,
+  tunnelConnected: false,
+  gatewayOk: false,
+  consecutiveFailures: 0
 };
 
-export function HealthPage({ summary }: HealthPageProps) {
+export function HealthPage() {
+  const [summary, setSummary] = useState<HealthSummary>(defaultSummary);
+
+  useEffect(() => {
+    const poll = async () => {
+      try {
+        const data = await invoke<HealthSummary>("get_health_summary");
+        setSummary(data);
+      } catch {
+        // keep last known state
+      }
+    };
+
+    poll();
+    const id = setInterval(poll, 5000);
+    return () => clearInterval(id);
+  }, []);
+
   const status = mapHealthSummary(summary);
   const statusText = {
     online: "在线",

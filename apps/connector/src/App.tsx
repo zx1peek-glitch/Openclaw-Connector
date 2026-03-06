@@ -4,14 +4,6 @@ import { BindingsPage } from "./pages/BindingsPage";
 import { ConnectionPage } from "./pages/ConnectionPage";
 import { DangerPage } from "./pages/DangerPage";
 import { HealthPage } from "./pages/HealthPage";
-import type { HealthSummary } from "./types/health";
-
-const defaultHealth: HealthSummary = {
-  latencyMs: 0,
-  tunnelConnected: false,
-  gatewayOk: false,
-  consecutiveFailures: 0
-};
 
 const tabs = ["connection", "bindings", "health", "activity", "danger"] as const;
 type Tab = (typeof tabs)[number];
@@ -52,7 +44,7 @@ export default function App() {
       <section className="page-wrap">
         {tab === "connection" && <ConnectionPage />}
         {tab === "bindings" && <BindingsPage />}
-        {tab === "health" && <HealthPage summary={defaultHealth} />}
+        {tab === "health" && <HealthPage />}
         {tab === "activity" && <ActivityPage />}
         {tab === "danger" && <DangerPage />}
       </section>
