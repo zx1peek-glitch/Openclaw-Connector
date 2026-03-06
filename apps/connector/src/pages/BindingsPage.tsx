@@ -3,18 +3,7 @@ import { useState } from "react";
 import { useActivityStore } from "../store/useActivityStore";
 import { useBindingsStore } from "../store/useBindingsStore";
 
-const LOCAL_NODE_ID =
-  typeof globalThis.navigator !== "undefined"
-    ? globalThis.navigator.userAgent.replace(/.*?(\w+)\)$/, "$1") || "local"
-    : "local";
-
-function getLocalNodeId(): string {
-  try {
-    return window.location.hostname || "local";
-  } catch {
-    return "local";
-  }
-}
+const LOCAL_NODE_ID = "local";
 
 export function BindingsPage() {
   const [agentId, setAgentId] = useState("");
