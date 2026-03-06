@@ -10,7 +10,6 @@ export function ActivityPage() {
   const bindings = useBindingsStore((s) => s.bindings);
 
   const [agentId, setAgentId] = useState("");
-  const [nodeId, setNodeId] = useState("");
   const [command, setCommand] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -21,7 +20,7 @@ export function ActivityPage() {
     setBusy(true);
 
     const selectedAgent = agentId || agentIds[0] || "default";
-    const selectedNode = nodeId || "local";
+    const selectedNode = "local";
 
     pushActivity("info", `执行任务：[${selectedAgent}] ${command}`);
 
@@ -67,7 +66,7 @@ export function ActivityPage() {
 
       <div className="execute-panel">
         <h3>快速执行</h3>
-        <div className="form-grid two-col">
+        <div className="form-grid">
           <label>
             Agent
             <select
@@ -84,15 +83,6 @@ export function ActivityPage() {
                 </option>
               ))}
             </select>
-          </label>
-          <label>
-            本机 Node
-            <input
-              aria-label="本机 Node"
-              value={nodeId}
-              onChange={(e) => setNodeId(e.target.value)}
-              placeholder="mac-node-1"
-            />
           </label>
         </div>
         <label>

@@ -11,13 +11,11 @@ test("set binding triggers set_agent_binding command", async () => {
   render(<BindingsPage />);
 
   fireEvent.change(screen.getByLabelText("Agent 标识"), { target: { value: "main" } });
-  fireEvent.change(screen.getByLabelText("Node 标识"), { target: { value: "mac-node-1" } });
-  fireEvent.click(screen.getByRole("button", { name: "保存绑定" }));
+  fireEvent.click(screen.getByRole("button", { name: "绑定到本机" }));
 
   await waitFor(() => {
-    expect(invokeMock).toHaveBeenCalledWith("set_agent_binding", {
-      agentId: "main",
-      nodeId: "mac-node-1"
-    });
+    expect(invokeMock).toHaveBeenCalledWith("set_agent_binding", expect.objectContaining({
+      agentId: "main"
+    }));
   });
 });

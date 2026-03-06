@@ -25,16 +25,14 @@ test("execute button triggers execute_task command", async () => {
   render(<ActivityPage />);
 
   const commandInput = screen.getByLabelText("命令");
-  const nodeInput = screen.getByLabelText("本机 Node");
 
   fireEvent.change(commandInput, { target: { value: "echo hello" } });
-  fireEvent.change(nodeInput, { target: { value: "mac-node-1" } });
 
   fireEvent.click(screen.getByRole("button", { name: "执行" }));
 
   await waitFor(() => {
     expect(invokeMock).toHaveBeenCalledWith("execute_task", expect.objectContaining({
-      localNodeId: "mac-node-1"
+      localNodeId: "local"
     }));
   });
 });
