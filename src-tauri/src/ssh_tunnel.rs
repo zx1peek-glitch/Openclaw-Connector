@@ -62,8 +62,12 @@ impl TunnelManager {
             let _ = self.stop();
         }
 
-        // Kill any orphaned process holding the local port (e.g. from a previous app crash).
-        Self::kill_port_holder(server.local_port);
+        // Refuse to start if the port is already occupied by another process.
+        if is_port_in_use(server.local_port) {
+            let msg = format!("port {} is already in use by another process", server.local_port);
+            self.last_error = Some(msg.clone());
+            return Err(msg);
+        }
 
         self.state = TunnelState::Connecting;
         self.active_server = Some(server.clone());
@@ -185,23 +189,6 @@ impl TunnelManager {
         self.status()
     }
 
-    /// Kill any process currently listening on the given local port.
-    /// This handles orphaned SSH processes left behind by a previous app crash.
-    fn kill_port_holder(port: u16) {
-        let output = Command::new("lsof")
-            .args(["-ti", &format!(":{port}")])
-            .output();
-        if let Ok(out) = output {
-            let pids = String::from_utf8_lossy(&out.stdout);
-            for pid_str in pids.split_whitespace() {
-                if pid_str.parse::<u32>().is_ok() {
-                    eprintln!("[ssh_tunnel] killing orphaned process {pid_str} on port {port}");
-                    let _ = Command::new("kill").arg(pid_str).output();
-                }
-            }
-        }
-    }
-
     pub fn build_ssh_args(server: &ServerConfig) -> Vec<String> {
         let key_path = if let Some(rest) = server.key_path.strip_prefix("~/") {
             match std::env::var("HOME") {
@@ -239,6 +226,11 @@ impl Default for TunnelState {
     fn default() -> Self {
         Self::Disconnected
     }
+}
+
+/// Check whether a TCP port is already in use by attempting to bind.
+pub fn is_port_in_use(port: u16) -> bool {
+    std::net::TcpListener::bind(("127.0.0.1", port)).is_err()
 }
 
 /// A separate SSH process for reverse-forwarding the CDP port.

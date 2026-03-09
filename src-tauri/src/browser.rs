@@ -53,8 +53,10 @@ impl BrowserManager {
             let _ = self.stop();
         }
 
-        // Kill any orphaned process holding the CDP port.
-        kill_port_holder(cdp_port);
+        // Refuse to start if the CDP port is already occupied.
+        if crate::ssh_tunnel::is_port_in_use(cdp_port) {
+            return Err(format!("CDP port {} is already in use by another process", cdp_port));
+        }
 
         let binary = Self::find_chrome_binary()?;
         self.cdp_port = cdp_port;
@@ -90,16 +92,12 @@ impl BrowserManager {
         Ok(self.status())
     }
 
-    /// Stop Chrome. Kills the tracked child AND any process on the CDP port,
-    /// because Chrome often re-execs to a new PID after profile selection.
     pub fn stop(&mut self) -> Result<(), String> {
         if let Some(mut child) = self.child.take() {
             eprintln!("[browser] killing chrome pid {}", child.id());
             let _ = child.kill();
             let _ = child.wait();
         }
-        // Also kill whatever is on the CDP port (handles re-exec case)
-        kill_port_holder(self.cdp_port);
         Ok(())
     }
 
@@ -133,21 +131,4 @@ fn is_cdp_listening(port: u16) -> bool {
         Duration::from_millis(200),
     )
     .is_ok()
-}
-
-/// Kill any process currently listening on the given port.
-/// Uses `lsof` to discover PIDs, same approach as `ssh_tunnel::kill_port_holder`.
-pub fn kill_port_holder(port: u16) {
-    let output = Command::new("lsof")
-        .args(["-ti", &format!(":{port}")])
-        .output();
-    if let Ok(out) = output {
-        let pids = String::from_utf8_lossy(&out.stdout);
-        for pid_str in pids.split_whitespace() {
-            if pid_str.parse::<u32>().is_ok() {
-                eprintln!("[browser] killing process {pid_str} on port {port}");
-                let _ = Command::new("kill").arg(pid_str).output();
-            }
-        }
-    }
 }
