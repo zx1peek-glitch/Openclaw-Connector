@@ -9,6 +9,7 @@ pub mod tasks;
 pub mod ws_client;
 
 use std::path::PathBuf;
+use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 
 use tauri::{Emitter, Manager};
@@ -17,8 +18,7 @@ use tokio::sync::mpsc;
 struct AppState {
     tunnel: Mutex<ssh_tunnel::TunnelManager>,
     heartbeat: Mutex<heartbeat::HeartbeatMonitor>,
-    /// Handle to cancel the background WebSocket loop.
-    ws_shutdown: Mutex<Option<tokio::sync::oneshot::Sender<()>>>,
+    ws_shutdown: Arc<AtomicBool>,
     ws_connected: Arc<Mutex<bool>>,
     rpc_tx: Mutex<Option<mpsc::UnboundedSender<ws_client::RpcRequest>>>,
     browser: Mutex<browser::BrowserManager>,
@@ -30,7 +30,7 @@ impl Default for AppState {
         Self {
             tunnel: Mutex::new(ssh_tunnel::TunnelManager::new()),
             heartbeat: Mutex::new(heartbeat::HeartbeatMonitor::new(3)),
-            ws_shutdown: Mutex::new(None),
+            ws_shutdown: Arc::new(AtomicBool::new(false)),
             ws_connected: Arc::new(Mutex::new(false)),
             rpc_tx: Mutex::new(None),
             browser: Mutex::new(browser::BrowserManager::new()),
@@ -78,12 +78,12 @@ fn connect(
     let identity = device_identity::load_or_create(&identity_path)?;
     eprintln!("[connector] device identity: {}", identity.device_id);
 
-    // 0. Shutdown any previous WebSocket loop
-    if let Ok(mut ws_shutdown) = state.ws_shutdown.lock() {
-        if let Some(old) = ws_shutdown.take() {
-            let _ = old.send(());
-        }
-    }
+    // 0. Signal any previous WebSocket loops to shut down
+    state.ws_shutdown.store(true, std::sync::atomic::Ordering::Relaxed);
+    // Brief pause to let previous loops detect the flag
+    std::thread::sleep(std::time::Duration::from_millis(200));
+    // Reset for the new connection
+    state.ws_shutdown.store(false, std::sync::atomic::Ordering::Relaxed);
     if let Ok(mut c) = state.ws_connected.lock() {
         *c = false;
     }
@@ -116,7 +116,6 @@ fn connect(
 
     // 2. Start WebSocket client in background
     let ws_url = ws_client::build_ws_url(server.local_port);
-    let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel::<()>();
 
     // RPC channel for management calls (operator WebSocket)
     let (rpc_tx, mut operator_rpc_rx) = mpsc::unbounded_channel::<ws_client::RpcRequest>();
@@ -126,11 +125,6 @@ fn connect(
 
     // Dummy RPC channel for node WebSocket (not used for management)
     let (_dummy_tx, mut node_rpc_rx) = mpsc::unbounded_channel::<ws_client::RpcRequest>();
-
-    // Store shutdown handle
-    if let Ok(mut ws_shutdown) = state.ws_shutdown.lock() {
-        *ws_shutdown = Some(shutdown_tx);
-    }
 
     let app = app_handle.clone();
     let (event_tx, mut event_rx) = mpsc::unbounded_channel::<ws_client::NodeEvent>();
@@ -147,52 +141,53 @@ fn connect(
     let operator_ws_url = ws_url.clone();
     let operator_token = gateway_token.clone();
     let local_port = server.local_port;
+    let operator_shutdown = Arc::clone(&state.ws_shutdown);
     tauri::async_runtime::spawn(async move {
         loop {
-            match ws_client::run_operator_loop(&operator_ws_url, local_port, &operator_token, &mut operator_rpc_rx).await {
+            if operator_shutdown.load(std::sync::atomic::Ordering::Relaxed) {
+                eprintln!("[connector] Operator WS shutdown, exiting loop");
+                break;
+            }
+            match ws_client::run_operator_loop(&operator_ws_url, local_port, &operator_token, &mut operator_rpc_rx, Arc::clone(&operator_shutdown)).await {
                 Ok(()) => eprintln!("[connector] Operator WS closed normally"),
                 Err(e) => eprintln!("[connector] Operator WS error: {e}"),
             }
+            if operator_shutdown.load(std::sync::atomic::Ordering::Relaxed) {
+                break;
+            }
             tokio::time::sleep(std::time::Duration::from_secs(3)).await;
-            eprintln!("[connector] Attempting operator WS reconnect...");
         }
     });
 
     // Spawn node WebSocket loop with auto-reconnect
     let ws_connected = Arc::clone(&app.state::<AppState>().ws_connected);
+    let node_shutdown = Arc::clone(&state.ws_shutdown);
     tauri::async_runtime::spawn(async move {
-        let mut shutdown_rx = shutdown_rx;
         loop {
+            if node_shutdown.load(std::sync::atomic::Ordering::Relaxed) {
+                eprintln!("[connector] Node WS shutdown, exiting loop");
+                break;
+            }
             let event_tx_clone = event_tx.clone();
             let ws_connected_clone = Arc::clone(&ws_connected);
+            let ws_result = ws_client::run_ws_loop(
+                &ws_url, &gateway_token, &node_id, &node_name, &identity,
+                event_tx_clone, &mut node_rpc_rx, ws_connected_clone,
+                Arc::clone(&node_shutdown),
+            ).await;
 
-            let ws_future = ws_client::run_ws_loop(&ws_url, &gateway_token, &node_id, &node_name, &identity, event_tx_clone, &mut node_rpc_rx, ws_connected_clone);
-
-            tokio::select! {
-                result = ws_future => {
-                    if let Ok(mut connected) = ws_connected.lock() {
-                        *connected = false;
-                    }
-                    match result {
-                        Ok(()) => {
-                            eprintln!("[connector] WebSocket closed normally");
-                        }
-                        Err(e) => {
-                            eprintln!("[connector] WebSocket error: {e}");
-                        }
-                    }
-                    // Wait before reconnect
-                    tokio::time::sleep(std::time::Duration::from_secs(3)).await;
-                    eprintln!("[connector] Attempting WebSocket reconnect...");
-                }
-                _ = &mut shutdown_rx => {
-                    eprintln!("[connector] WebSocket shutdown requested");
-                    if let Ok(mut connected) = ws_connected.lock() {
-                        *connected = false;
-                    }
-                    break;
-                }
+            if let Ok(mut connected) = ws_connected.lock() {
+                *connected = false;
             }
+            match ws_result {
+                Ok(()) => eprintln!("[connector] WebSocket closed normally"),
+                Err(e) => eprintln!("[connector] WebSocket error: {e}"),
+            }
+            if node_shutdown.load(std::sync::atomic::Ordering::Relaxed) {
+                break;
+            }
+            tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+            eprintln!("[connector] Attempting WebSocket reconnect...");
         }
     });
 
@@ -202,12 +197,8 @@ fn connect(
 /// Disconnect: close WebSocket, then stop SSH tunnel.
 #[tauri::command]
 fn disconnect(state: tauri::State<'_, AppState>) -> Result<(), String> {
-    // 1. Shutdown WebSocket
-    if let Ok(mut ws_shutdown) = state.ws_shutdown.lock() {
-        if let Some(tx) = ws_shutdown.take() {
-            let _ = tx.send(());
-        }
-    }
+    // 1. Signal all WebSocket loops to shut down
+    state.ws_shutdown.store(true, std::sync::atomic::Ordering::Relaxed);
     if let Ok(mut connected) = state.ws_connected.lock() {
         *connected = false;
     }

@@ -69,6 +69,7 @@ pub async fn run_ws_loop(
     event_tx: mpsc::UnboundedSender<NodeEvent>,
     rpc_rx: &mut mpsc::UnboundedReceiver<RpcRequest>,
     ws_connected: Arc<Mutex<bool>>,
+    shutdown: Arc<std::sync::atomic::AtomicBool>,
 ) -> Result<(), String> {
     let (ws_stream, _response) = tokio_tungstenite::connect_async(ws_url)
         .await
@@ -86,6 +87,10 @@ pub async fn run_ws_loop(
 
     loop {
         tokio::select! {
+            _ = tokio::time::sleep(std::time::Duration::from_millis(100)), if shutdown.load(std::sync::atomic::Ordering::Relaxed) => {
+                eprintln!("[ws_client] shutdown flag detected");
+                break;
+            }
             msg_opt = read.next() => {
                 let msg_result = match msg_opt {
                     Some(r) => r,
@@ -273,6 +278,28 @@ pub async fn run_ws_loop(
                         // rpc_rx channel closed, continue running WS loop
                     }
                 }
+            }
+        }
+    }
+
+    // Send Close Frame for graceful shutdown
+    eprintln!("[ws_client] sending Close frame");
+    let _ = write.send(Message::Close(None)).await;
+
+    // Wait briefly for server Close response
+    let close_deadline = tokio::time::sleep(std::time::Duration::from_secs(3));
+    tokio::pin!(close_deadline);
+    loop {
+        tokio::select! {
+            msg_opt = read.next() => {
+                match msg_opt {
+                    Some(Ok(Message::Close(_))) | None => break,
+                    _ => continue,
+                }
+            }
+            _ = &mut close_deadline => {
+                eprintln!("[ws_client] Close frame timeout, forcing disconnect");
+                break;
             }
         }
     }
@@ -489,6 +516,7 @@ pub async fn run_operator_loop(
     local_port: u16,
     gateway_token: &str,
     rpc_rx: &mut mpsc::UnboundedReceiver<RpcRequest>,
+    shutdown: Arc<std::sync::atomic::AtomicBool>,
 ) -> Result<(), String> {
     let mut request = ws_url.into_client_request()
         .map_err(|e| format!("bad URL: {e}"))?;
@@ -511,6 +539,10 @@ pub async fn run_operator_loop(
 
     loop {
         tokio::select! {
+            _ = tokio::time::sleep(std::time::Duration::from_millis(100)), if shutdown.load(std::sync::atomic::Ordering::Relaxed) => {
+                eprintln!("[operator_ws] shutdown flag detected");
+                break;
+            }
             msg_opt = read.next() => {
                 let msg = match msg_opt {
                     Some(Ok(m)) => m,
@@ -634,6 +666,28 @@ pub async fn run_operator_loop(
                         pending_rpcs.insert(req.id, req.response_tx);
                     }
                 }
+            }
+        }
+    }
+
+    // Send Close Frame for graceful shutdown
+    eprintln!("[operator_ws] sending Close frame");
+    let _ = write.send(Message::Close(None)).await;
+
+    // Wait briefly for server Close response
+    let close_deadline = tokio::time::sleep(std::time::Duration::from_secs(3));
+    tokio::pin!(close_deadline);
+    loop {
+        tokio::select! {
+            msg_opt = read.next() => {
+                match msg_opt {
+                    Some(Ok(Message::Close(_))) | None => break,
+                    _ => continue,
+                }
+            }
+            _ = &mut close_deadline => {
+                eprintln!("[operator_ws] Close frame timeout, forcing disconnect");
+                break;
             }
         }
     }
