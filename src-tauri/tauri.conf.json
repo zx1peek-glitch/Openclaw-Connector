@@ -22,7 +22,11 @@
     }
   },
   "bundle": {
-    "active": false,
-    "targets": ["app"]
+    "active": true,
+    "targets": ["app"],
+    "icon": [
+      "icons/icon.icns",
+      "icons/icon.png"
+    ]
   }
 }
