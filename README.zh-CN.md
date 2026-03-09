@@ -4,6 +4,8 @@
 
 一款 macOS 桌面应用，通过 SSH 隧道将本地机器连接到 [OpenClaw](https://github.com/openclaw/openclaw) 网关，让 AI Agent 能够与你的本地环境交互。
 
+![截图](docs/images/screenshot.png)
+
 ## 功能特性
 
 - **SSH 隧道** — 安全的反向隧道连接到 Linux 网关，支持自动重连

@@ -4,6 +4,8 @@
 
 A macOS desktop app that connects your local machine to [OpenClaw](https://github.com/openclaw/openclaw) gateway via SSH tunnel, enabling AI agents to interact with your local environment.
 
+![Screenshot](docs/images/screenshot.png)
+
 ## Features
 
 - **SSH Tunnel** — Secure reverse tunnel to your Linux gateway with auto-reconnect
