@@ -1,25 +1,101 @@
-# OpenClaw Connector (macOS MVP)
+# OpenClaw Connector
 
-Desktop connector built with Tauri 2 + React.
+[简体中文](README.zh-CN.md) | English
 
-## MVP Features
+A macOS desktop app that connects your local machine to [OpenClaw](https://github.com/liuzeming-yuxi) gateway via SSH tunnel, enabling AI agents to interact with your local environment.
 
-- Single-server SSH tunnel profile.
-- Gateway heartbeat status model.
-- Per-agent local node bindings.
-- Remote task execution pipeline (`system.run`).
-- Emergency disconnect kill switch.
+## Features
+
+- **SSH Tunnel** — Secure reverse tunnel to your Linux gateway with auto-reconnect
+- **Agent Bindings** — Bind AI agents to your local node for remote task execution
+- **Browser CDP** — Expose local Chrome browser to agents via Chrome DevTools Protocol
+- **Session Management** — Notify agents across chat sessions with one click
+- **Device Identity** — Ed25519 keypair for secure device authentication
+- **Emergency Disconnect** — One-click kill switch to instantly sever all connections
+
+## Quick Start
+
+### Prerequisites
+
+- **macOS** 12+
+- **Node.js** 18+ and [pnpm](https://pnpm.io/)
+- **Rust** toolchain ([rustup](https://rustup.rs/))
+- A running OpenClaw gateway on a remote Linux server
+
+### Install & Run
+
+```bash
+# Clone the repo
+git clone https://github.com/liuzeming-yuxi/Openclaw-Connector.git
+cd Openclaw-Connector
+
+# Install dependencies
+pnpm install
+
+# Run in development mode
+pnpm tauri dev
+```
+
+### Build for Production
+
+```bash
+pnpm tauri build
+```
+
+The `.dmg` installer will be generated in `src-tauri/target/release/bundle/dmg/`.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Desktop Framework | [Tauri 2](https://v2.tauri.app/) |
+| Frontend | React 19 + TypeScript + Tailwind CSS 4 |
+| State Management | Zustand 5 |
+| Backend | Rust (Tokio async runtime) |
+| Tunnel | SSH reverse port forwarding |
+| Browser Automation | Chrome DevTools Protocol (CDP) |
+
+## Project Structure
+
+```
+├── src/                    # React frontend
+│   ├── pages/              # Page components
+│   ├── components/ui/      # Reusable UI components
+│   ├── store/              # Zustand state stores
+│   └── types/              # TypeScript type definitions
+├── src-tauri/              # Rust backend
+│   └── src/
+│       ├── lib.rs          # Tauri command handlers
+│       ├── ssh_tunnel.rs   # SSH tunnel management
+│       ├── browser.rs      # Chrome CDP lifecycle
+│       ├── ws_client.rs    # WebSocket client
+│       ├── config.rs       # Configuration persistence
+│       ├── health.rs       # Gateway health monitoring
+│       └── device_identity.rs  # Ed25519 device keys
+├── docs/                   # Documentation
+└── package.json
+```
 
 ## Development
 
 ```bash
-pnpm install
+# Run frontend + backend in dev mode
+pnpm tauri dev
+
+# Run frontend tests
 pnpm test
-pnpm dev
-```
 
-## Rust tests
-
-```bash
+# Run Rust tests
 cargo test --manifest-path src-tauri/Cargo.toml
+
+# Type check
+pnpm build
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+[MIT](LICENSE)
