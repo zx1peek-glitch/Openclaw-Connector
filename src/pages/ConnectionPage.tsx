@@ -88,7 +88,7 @@ export function ConnectionPage() {
       try {
         const next = await invoke<ConnectionStatus>("get_connection_status");
         setStatus(next);
-      } catch {}
+      } catch { /* polling — ignore */ }
     };
     poll();
     const id = setInterval(poll, 2000);
@@ -153,7 +153,7 @@ export function ConnectionPage() {
         const s = await invoke<BrowserStatusResponse>("get_browser_status");
         setBrowserRunning(s.running);
         setBrowserTunnelRunning(s.tunnelRunning);
-      } catch {}
+      } catch { /* polling — ignore */ }
     };
     poll();
     const id = setInterval(poll, 3000);
@@ -294,7 +294,7 @@ export function ConnectionPage() {
       for (const sessionKey of notifiedSessions) {
         try {
           await invoke("inject_message", { sessionKey, content: disconnectMsg });
-        } catch {}
+        } catch { /* best-effort notification */ }
       }
       setNotifiedSessions(new Set());
     }
@@ -628,8 +628,8 @@ export function ConnectionPage() {
                                             const role = String(msg?.role ?? msg?.type ?? "unknown");
                                             const isUser = role === "user";
                                             
-                                            let text = "";
                                             const c = msg?.content ?? msg?.text ?? msg?.message ?? "";
+                                            let text: string;
                                             if (typeof c === "string") text = c;
                                             else if (Array.isArray(c)) text = c.map((b: Record<string, unknown>) => typeof b === "string" ? b : String(b?.text ?? b?.content ?? "")).join(" ");
                                             else text = String(c);
