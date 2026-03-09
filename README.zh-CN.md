@@ -106,6 +106,19 @@ cargo test --manifest-path src-tauri/Cargo.toml
 pnpm build
 ```
 
+## 路线图
+
+- [ ] 更好的全平台支持（Windows & Linux）
+- [ ] 多语言支持（i18n）
+- [ ] 主题切换（白天 / 黑夜模式）
+- [ ] OpenClaw 健康检查及自动修复
+- [ ] 更多浏览器的自动化支持（Firefox、Edge 等）
+- [ ] 完善的 CI/CD 构建流程
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=liuzeming-yuxi/Openclaw-Connector&type=Date)](https://star-history.com/#liuzeming-yuxi/Openclaw-Connector&Date)
+
 ## 贡献
 
 请参阅 [CONTRIBUTING.zh-CN.md](CONTRIBUTING.zh-CN.md)。

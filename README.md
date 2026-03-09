@@ -106,6 +106,19 @@ cargo test --manifest-path src-tauri/Cargo.toml
 pnpm build
 ```
 
+## Roadmap
+
+- [ ] Cross-platform support (Windows & Linux)
+- [ ] Multi-language UI (i18n)
+- [ ] Theme switching (Light / Dark mode)
+- [ ] OpenClaw health check & auto-repair
+- [ ] Browser automation beyond Chrome (Firefox, Edge, etc.)
+- [ ] Comprehensive CI/CD pipeline
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=liuzeming-yuxi/Openclaw-Connector&type=Date)](https://star-history.com/#liuzeming-yuxi/Openclaw-Connector&Date)
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
