@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-一款 macOS 桌面应用，通过 SSH 隧道将本地机器连接到 [OpenClaw](https://github.com/liuzeming-yuxi) 网关，让 AI Agent 能够与你的本地环境交互。
+一款 macOS 桌面应用，通过 SSH 隧道将本地机器连接到 [OpenClaw](https://github.com/openclaw/openclaw) 网关，让 AI Agent 能够与你的本地环境交互。
 
 ## 功能特性
 

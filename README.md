@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md) | English
 
-A macOS desktop app that connects your local machine to [OpenClaw](https://github.com/liuzeming-yuxi) gateway via SSH tunnel, enabling AI agents to interact with your local environment.
+A macOS desktop app that connects your local machine to [OpenClaw](https://github.com/openclaw/openclaw) gateway via SSH tunnel, enabling AI agents to interact with your local environment.
 
 ## Features
 
