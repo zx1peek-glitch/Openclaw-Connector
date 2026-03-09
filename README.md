@@ -150,11 +150,11 @@ pnpm build
 - [ ] OpenClaw health check & auto-repair
 - [ ] Browser automation beyond Chrome (Firefox, Edge, etc.)
 - [ ] Comprehensive CI/CD pipeline
-- [ ] PR-level CI checks (lint, test, clippy)
+- [x] PR-level CI checks (lint, test, clippy)
 - [ ] Architecture / sequence diagram
-- [ ] Safer port management (avoid killing unrelated processes)
-- [ ] Operator WebSocket graceful shutdown on disconnect
-- [ ] Unified config source of truth (frontend vs backend)
+- [x] Safer port management (avoid killing unrelated processes)
+- [x] Operator WebSocket graceful shutdown on disconnect
+- [x] Unified config source of truth (frontend vs backend)
 
 ## Star History
 
