@@ -1,8 +1,35 @@
-# OpenClaw Connector
+<p align="center">
+  <img src="src-tauri/icons/icon.png" width="128" height="128" alt="OpenClaw Connector Logo" />
+</p>
 
-[English](README.md) | 简体中文
+<h1 align="center">OpenClaw Connector</h1>
 
-一款 macOS 桌面应用，通过 SSH 隧道将本地机器连接到 [OpenClaw](https://github.com/openclaw/openclaw) 网关，让 AI Agent 能够与你的本地环境交互。
+<p align="center">
+  <strong>安全地将远程 AI Agent 桥接到你的本地机器</strong>
+</p>
+
+<p align="center">
+  <a href="#功能特性">功能特性</a> •
+  <a href="#安装">安装</a> •
+  <a href="#快速开始">快速开始</a> •
+  <a href="docs/guide.zh-CN.md">使用指南</a> •
+  <a href="#贡献">贡献</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue" alt="Platform" />
+  <img src="https://img.shields.io/badge/tauri-2-24C8D8?logo=tauri" alt="Tauri" />
+  <img src="https://img.shields.io/badge/react-19-61DAFB?logo=react" alt="React" />
+  <img src="https://img.shields.io/badge/rust-stable-orange?logo=rust" alt="Rust" />
+  <a href="https://github.com/liuzeming-yuxi/Openclaw-Connector/releases"><img src="https://img.shields.io/github/downloads/liuzeming-yuxi/Openclaw-Connector/total?color=%23027DEB" alt="Downloads" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License" /></a>
+</p>
+
+<p align="center">
+  简体中文 | <a href="README.md">English</a>
+</p>
+
+---
 
 ![截图](docs/images/screenshot.png)
 
@@ -25,38 +52,47 @@ OpenClaw Connector 解决两个核心问题：
 - **设备身份** — Ed25519 密钥对，用于安全的设备认证
 - **紧急断开** — 一键断开所有连接的紧急开关
 
+## 安装
+
+从 [Releases](https://github.com/liuzeming-yuxi/Openclaw-Connector/releases) 页面下载适合你平台的最新版本。
+
+| 平台 | 文件 |
+|------|------|
+| **macOS (Apple Silicon)** | `OpenClaw.Connector_x.x.x_aarch64.dmg` |
+| **macOS (Intel)** | `OpenClaw.Connector_x.x.x_x64.dmg` |
+| **Linux (Debian/Ubuntu)** | `OpenClaw.Connector_x.x.x_amd64.deb` |
+| **Linux (AppImage)** | `OpenClaw.Connector_x.x.x_amd64.AppImage` |
+| **Windows** | `OpenClaw.Connector_x.x.x_x64-setup.exe` |
+
+> **macOS 提示：** 首次启动时，macOS 可能提示"无法验证开发者"。前往 **系统设置 → 隐私与安全性**，下拉找到并点击 **"仍要打开"**。
+>
+> **Linux AppImage：** 先运行 `chmod +x OpenClaw.Connector_*.AppImage` 赋予执行权限。
+
 ## 快速开始
 
 ### 前置要求
 
-- **macOS** 12+
-- **Node.js** 18+ 和 [pnpm](https://pnpm.io/)
-- **Rust** 工具链 ([rustup](https://rustup.rs/))
-- 一台运行 OpenClaw 网关的远程 Linux 服务器
+- 一台运行 [OpenClaw](https://github.com/openclaw/openclaw) 网关的远程 Linux 服务器
+- 本地机器能通过 SSH 连接到该服务器
 
-### 安装与运行
+> **第一次使用？** 请查看[使用指南](docs/guide.zh-CN.md)，里面有详细的配置说明和参数解释。
+
+### 从源码构建
 
 ```bash
 # 克隆仓库
 git clone https://github.com/liuzeming-yuxi/Openclaw-Connector.git
 cd Openclaw-Connector
 
-# 安装依赖
+# 安装依赖（需要 Node.js 18+、pnpm、Rust 工具链）
 pnpm install
 
 # 开发模式运行
 pnpm tauri dev
-```
 
-### 生产构建
-
-```bash
+# 或者构建生产版本
 pnpm tauri build
 ```
-
-`.app` 应用包会生成在 `src-tauri/target/release/bundle/macos/` 目录下。
-
-> **第一次使用？** 请查看[使用指南](docs/guide.zh-CN.md)，里面有详细的配置说明和参数解释。
 
 ## 技术栈
 
@@ -122,11 +158,30 @@ pnpm build
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=liuzeming-yuxi/Openclaw-Connector&type=Date)](https://star-history.com/#liuzeming-yuxi/Openclaw-Connector&Date)
+<p align="center">
+  <a href="https://star-history.com/#liuzeming-yuxi/Openclaw-Connector&Date">
+    <img src="https://api.star-history.com/svg?repos=liuzeming-yuxi/Openclaw-Connector&type=Date" alt="Star History Chart" />
+  </a>
+</p>
+
+## 致谢
+
+OpenClaw Connector 基于以下优秀的开源项目构建：
+
+- [OpenClaw](https://github.com/openclaw/openclaw) — AI Agent 运行时
+- [Tauri](https://v2.tauri.app/) — 轻量级桌面框架
+- [React](https://react.dev/) — UI 组件库
+- [Zustand](https://github.com/pmndrs/zustand) — 轻量级状态管理
+- [Tailwind CSS](https://tailwindcss.com/) — 实用优先的 CSS 框架
+- [Lucide](https://lucide.dev/) — 精美图标库
 
 ## 贡献
 
 请参阅 [CONTRIBUTING.zh-CN.md](CONTRIBUTING.zh-CN.md)。
+
+## 安全
+
+请参阅 [SECURITY.zh-CN.md](SECURITY.zh-CN.md) 了解安全模型和漏洞报告方式。
 
 ## 许可证
 

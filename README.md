@@ -1,8 +1,35 @@
-# OpenClaw Connector
+<p align="center">
+  <img src="src-tauri/icons/icon.png" width="128" height="128" alt="OpenClaw Connector Logo" />
+</p>
 
-[简体中文](README.zh-CN.md) | English
+<h1 align="center">OpenClaw Connector</h1>
 
-A macOS desktop app that connects your local machine to [OpenClaw](https://github.com/openclaw/openclaw) gateway via SSH tunnel, enabling AI agents to interact with your local environment.
+<p align="center">
+  <strong>Securely bridge remote AI agents to your local machine</strong>
+</p>
+
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#installation">Installation</a> •
+  <a href="docs/guide.md">User Guide</a> •
+  <a href="#contributing">Contributing</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue" alt="Platform" />
+  <img src="https://img.shields.io/badge/tauri-2-24C8D8?logo=tauri" alt="Tauri" />
+  <img src="https://img.shields.io/badge/react-19-61DAFB?logo=react" alt="React" />
+  <img src="https://img.shields.io/badge/rust-stable-orange?logo=rust" alt="Rust" />
+  <a href="https://github.com/liuzeming-yuxi/Openclaw-Connector/releases"><img src="https://img.shields.io/github/downloads/liuzeming-yuxi/Openclaw-Connector/total?color=%23027DEB" alt="Downloads" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License" /></a>
+</p>
+
+<p align="center">
+  <a href="README.zh-CN.md">简体中文</a> | English
+</p>
+
+---
 
 ![Screenshot](docs/images/screenshot.png)
 
@@ -25,38 +52,47 @@ OpenClaw Connector solves two problems:
 - **Device Identity** — Ed25519 keypair for secure device authentication
 - **Emergency Disconnect** — One-click kill switch to instantly sever all connections
 
+## Installation
+
+Download the latest release for your platform from the [Releases](https://github.com/liuzeming-yuxi/Openclaw-Connector/releases) page.
+
+| Platform | File |
+|----------|------|
+| **macOS (Apple Silicon)** | `OpenClaw.Connector_x.x.x_aarch64.dmg` |
+| **macOS (Intel)** | `OpenClaw.Connector_x.x.x_x64.dmg` |
+| **Linux (Debian/Ubuntu)** | `OpenClaw.Connector_x.x.x_amd64.deb` |
+| **Linux (AppImage)** | `OpenClaw.Connector_x.x.x_amd64.AppImage` |
+| **Windows** | `OpenClaw.Connector_x.x.x_x64-setup.exe` |
+
+> **macOS note:** On first launch, macOS may show "cannot verify developer". Go to **System Settings → Privacy & Security**, scroll down and click **"Open Anyway"**.
+>
+> **Linux AppImage:** Run `chmod +x OpenClaw.Connector_*.AppImage` first.
+
 ## Quick Start
 
 ### Prerequisites
 
-- **macOS** 12+
-- **Node.js** 18+ and [pnpm](https://pnpm.io/)
-- **Rust** toolchain ([rustup](https://rustup.rs/))
-- A running OpenClaw gateway on a remote Linux server
+- A running [OpenClaw](https://github.com/openclaw/openclaw) gateway on a remote Linux server
+- SSH access to the server from your local machine
 
-### Install & Run
+> **New to OpenClaw?** See the [User Guide](docs/guide.md) for detailed setup instructions and parameter explanations.
+
+### Build from Source
 
 ```bash
 # Clone the repo
 git clone https://github.com/liuzeming-yuxi/Openclaw-Connector.git
 cd Openclaw-Connector
 
-# Install dependencies
+# Install dependencies (requires Node.js 18+, pnpm, Rust toolchain)
 pnpm install
 
 # Run in development mode
 pnpm tauri dev
-```
 
-### Build for Production
-
-```bash
+# Or build for production
 pnpm tauri build
 ```
-
-The `.app` bundle will be generated in `src-tauri/target/release/bundle/macos/`.
-
-> **New to OpenClaw?** See the [User Guide](docs/guide.md) for detailed setup instructions and parameter explanations.
 
 ## Tech Stack
 
@@ -122,11 +158,30 @@ pnpm build
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=liuzeming-yuxi/Openclaw-Connector&type=Date)](https://star-history.com/#liuzeming-yuxi/Openclaw-Connector&Date)
+<p align="center">
+  <a href="https://star-history.com/#liuzeming-yuxi/Openclaw-Connector&Date">
+    <img src="https://api.star-history.com/svg?repos=liuzeming-yuxi/Openclaw-Connector&type=Date" alt="Star History Chart" />
+  </a>
+</p>
+
+## Acknowledgments
+
+OpenClaw Connector is built on excellent open-source projects:
+
+- [OpenClaw](https://github.com/openclaw/openclaw) — The AI agent runtime
+- [Tauri](https://v2.tauri.app/) — Lightweight desktop framework
+- [React](https://react.dev/) — UI component library
+- [Zustand](https://github.com/pmndrs/zustand) — Lightweight state management
+- [Tailwind CSS](https://tailwindcss.com/) — Utility-first CSS framework
+- [Lucide](https://lucide.dev/) — Beautiful icon set
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for the security model and vulnerability reporting.
 
 ## License
 
