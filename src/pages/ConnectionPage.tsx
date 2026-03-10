@@ -81,6 +81,7 @@ export function ConnectionPage() {
   const [browserBusy, setBrowserBusy] = useState(false);
   const [cdpPort, setCdpPort] = useState(config.cdpPort);
   const [cdpRemotePort, setCdpRemotePort] = useState(config.cdpRemotePort);
+  const [latencyMs, setLatencyMs] = useState(0);
 
   // Poll connection status
   useEffect(() => {
@@ -138,12 +139,31 @@ export function ConnectionPage() {
   }, [fullyConnected, isConnected, status.tunnelState]);
 
   const statusText = useMemo(() => {
-    if (fullyConnected) return "已连接";
+    if (fullyConnected) {
+      return latencyMs > 0 ? `已连接 · ${latencyMs}ms` : "已连接";
+    }
     if (isConnected) return "SSH 已连接，WS 连接中";
     if (status.tunnelState === "connecting") return "连接中";
     if (status.tunnelState === "reconnecting") return "重连中";
     return "未连接";
-  }, [fullyConnected, isConnected, status.tunnelState]);
+  }, [fullyConnected, isConnected, status.tunnelState, latencyMs]);
+
+  // Poll health summary for latency
+  useEffect(() => {
+    if (!fullyConnected) {
+      setLatencyMs(0);
+      return;
+    }
+    const poll = async () => {
+      try {
+        const h = await invoke<{ latencyMs: number }>("get_health_summary");
+        setLatencyMs(h.latencyMs);
+      } catch { /* ignore */ }
+    };
+    poll();
+    const id = setInterval(poll, 5000);
+    return () => clearInterval(id);
+  }, [fullyConnected]);
 
   // Poll browser status
   useEffect(() => {
