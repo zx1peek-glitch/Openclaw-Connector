@@ -1,34 +1,69 @@
 @import "tailwindcss";
 
-@theme {
+/* ── Light theme (default) ── */
+:root {
+  --color-background: #F8FAFC;
+  --color-foreground: #0F172A;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0F172A;
+  --color-primary: #16A34A;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F1F5F9;
+  --color-secondary-foreground: #0F172A;
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
+  --color-accent: #F1F5F9;
+  --color-accent-foreground: #0F172A;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-input: #E2E8F0;
+  --color-ring: #16A34A;
+}
+
+/* ── Dark theme ── */
+.dark {
   --color-background: #0F172A;
   --color-foreground: #F8FAFC;
-  
   --color-card: #1E293B;
   --color-card-foreground: #F8FAFC;
-  
   --color-primary: #22C55E;
   --color-primary-foreground: #022C22;
-  
   --color-secondary: #334155;
   --color-secondary-foreground: #F8FAFC;
-  
   --color-muted: #1E293B;
   --color-muted-foreground: #94A3B8;
-  
   --color-accent: #0F172A;
   --color-accent-foreground: #F8FAFC;
-  
   --color-destructive: #EF4444;
   --color-destructive-foreground: #F8FAFC;
-  
   --color-border: #334155;
   --color-input: #334155;
   --color-ring: #22C55E;
+}
+
+@theme {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+  --color-border: var(--color-border);
+  --color-input: var(--color-input);
+  --color-ring: var(--color-ring);
 
   --font-sans: 'Fira Sans', 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'Fira Code', 'IBM Plex Mono', monospace;
-  
+
   --radius-lg: 0.5rem;
   --radius-md: calc(0.5rem - 2px);
   --radius-sm: calc(0.5rem - 4px);
