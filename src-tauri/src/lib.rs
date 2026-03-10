@@ -68,6 +68,7 @@ fn connect(
     gateway_token: String,
     node_id: String,
     node_name: String,
+    force: Option<bool>,
 ) -> Result<ssh_tunnel::TunnelStatus, String> {
     // Load or create device identity for node-host authentication
     let identity_path = app_handle
@@ -101,6 +102,12 @@ fn connect(
         "[connector] connect host={} user={} local_port={} remote_port={}",
         server.host, server.user, server.local_port, server.remote_port
     );
+
+    // Force-kill port holder if user explicitly confirmed
+    if force.unwrap_or(false) && ssh_tunnel::is_port_in_use(server.local_port) {
+        eprintln!("[connector] force mode: killing port {} holder", server.local_port);
+        ssh_tunnel::kill_port_holder(server.local_port);
+    }
 
     tunnel.start(server.clone())?;
     let status = tunnel.refresh_status();
@@ -142,6 +149,7 @@ fn connect(
     let operator_token = gateway_token.clone();
     let local_port = server.local_port;
     let operator_shutdown = Arc::clone(&state.ws_shutdown);
+    let app_for_operator = app_handle.clone();
     tauri::async_runtime::spawn(async move {
         loop {
             if operator_shutdown.load(std::sync::atomic::Ordering::Relaxed) {
@@ -150,7 +158,12 @@ fn connect(
             }
             match ws_client::run_operator_loop(&operator_ws_url, local_port, &operator_token, &mut operator_rpc_rx, Arc::clone(&operator_shutdown)).await {
                 Ok(()) => eprintln!("[connector] Operator WS closed normally"),
-                Err(e) => eprintln!("[connector] Operator WS error: {e}"),
+                Err(e) => {
+                    eprintln!("[connector] Operator WS error: {e}");
+                    let _ = app_for_operator.emit("node-event", &ws_client::NodeEvent::Error {
+                        message: format!("Operator WS: {e}"),
+                    });
+                }
             }
             if operator_shutdown.load(std::sync::atomic::Ordering::Relaxed) {
                 break;

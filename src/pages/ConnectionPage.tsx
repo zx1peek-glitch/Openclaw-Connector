@@ -166,7 +166,7 @@ export function ConnectionPage() {
     }
   }, [fullyConnected]);
 
-  const loadAgents = async () => {
+  const loadAgents = async (retries = 3) => {
     setLoadingAgents(true);
     setChatHistory({});
     setExpandedSession(null);
@@ -175,7 +175,13 @@ export function ConnectionPage() {
       const list = Array.isArray(result) ? result : (result as Record<string, unknown>)?.agents ?? (result as Record<string, unknown>)?.list ?? [];
       setAgents(Array.isArray(list) ? list as AgentInfo[] : []);
     } catch (err) {
-      pushActivity("error", `加载 Agent 列表失败：${err instanceof Error ? err.message : String(err)}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      // Operator WS may still be authenticating after node WS connected — retry
+      if (msg.includes("not authenticated yet") && retries > 0) {
+        await new Promise((r) => setTimeout(r, 1500));
+        return loadAgents(retries - 1);
+      }
+      pushActivity("error", `加载 Agent 列表失败：${msg}`);
     } finally {
       setLoadingAgents(false);
     }
@@ -263,12 +269,12 @@ export function ConnectionPage() {
     }
   };
 
-  const connect = async () => {
+  const connect = async (force = false) => {
     setBusy(true);
     setError(null);
-    pushActivity("info", `发起连接：${server.user}@${server.host}`);
+    pushActivity("info", force ? `强制连接：${server.user}@${server.host}` : `发起连接：${server.user}@${server.host}`);
     try {
-      await invoke("connect", { server, gatewayToken, nodeId: config.nodeId, nodeName });
+      await invoke("connect", { server, gatewayToken, nodeId: config.nodeId, nodeName, force });
       pushActivity("info", "SSH 隧道已连接，WebSocket 正在建立...");
       patchConfig({ server, gatewayToken, nodeName });
     } catch (err) {
@@ -331,7 +337,11 @@ export function ConnectionPage() {
       });
       setBrowserRunning(result.running);
       setBrowserTunnelRunning(result.tunnelRunning);
-      pushActivity("info", `Chrome 已启动，CDP 端口 ${cdpPort}，远程映射 ${cdpRemotePort}`);
+      if (result.running) {
+        pushActivity("info", `Chrome 已启动，CDP 端口 ${cdpPort}，远程映射 ${cdpRemotePort}`);
+      } else {
+        pushActivity("error", "Chrome 进程已启动但 CDP 端口无响应，请关闭所有已有 Chrome 窗口后重试");
+      }
       patchConfig({ cdpPort, cdpRemotePort });
     } catch (err) {
       pushActivity("error", `启动浏览器失败：${err instanceof Error ? err.message : String(err)}`);
@@ -434,7 +444,7 @@ export function ConnectionPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Button onClick={connect} disabled={busy} variant={fullyConnected ? "secondary" : "default"}>
+              <Button onClick={() => connect()} disabled={busy} variant={fullyConnected ? "secondary" : "default"}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${busy ? 'animate-spin' : ''}`} />
                 {busy ? "处理中..." : (fullyConnected ? "重新连接" : "连接网关")}
               </Button>
@@ -461,7 +471,20 @@ export function ConnectionPage() {
             {error && (
               <div className="mt-4 flex items-start gap-2 text-sm text-red-400 bg-red-950/30 p-3 rounded-lg border border-red-900/50">
                 <AlertCircle className="w-5 h-5 shrink-0" />
-                <p>{error}</p>
+                <div className="flex-1">
+                  <p>{error}</p>
+                  {error.includes("already in use") && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-2 h-7 text-xs border-red-800 text-red-300 hover:bg-red-900/40 hover:text-red-100"
+                      disabled={busy}
+                      onClick={() => connect(true)}
+                    >
+                      强制释放端口并连接
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>
@@ -540,7 +563,7 @@ export function ConnectionPage() {
                 <Activity className="w-5 h-5 text-purple-400" />
                 会话注入
               </CardTitle>
-              <Button variant="ghost" size="icon" onClick={loadAgents} disabled={loadingAgents} className="h-8 w-8 ml-auto text-slate-400 hover:text-slate-100">
+              <Button variant="ghost" size="icon" onClick={() => loadAgents()} disabled={loadingAgents} className="h-8 w-8 ml-auto text-slate-400 hover:text-slate-100">
                 <RefreshCw className={`w-4 h-4 ${loadingAgents ? 'animate-spin' : ''}`} />
               </Button>
             </CardHeader>

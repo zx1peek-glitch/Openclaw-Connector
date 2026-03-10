@@ -95,7 +95,22 @@ impl BrowserManager {
         // Give Chrome time to initialise the CDP server.
         std::thread::sleep(Duration::from_secs(2));
 
-        Ok(self.status())
+        let status = self.status();
+        if !status.running {
+            // Chrome spawned but CDP is not responding — likely exited immediately
+            // or merged into an existing Chrome instance.
+            if let Some(mut child) = self.child.take() {
+                let _ = child.kill();
+                let _ = child.wait();
+            }
+            return Err(
+                "Chrome started but CDP port is not responding. \
+                 Close all existing Chrome windows and retry."
+                    .to_string(),
+            );
+        }
+
+        Ok(status)
     }
 
     pub fn stop(&mut self) -> Result<(), String> {

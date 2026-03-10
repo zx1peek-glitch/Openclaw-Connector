@@ -538,6 +538,9 @@ pub async fn run_operator_loop(
     let mut connect_req_id: Option<String> = None;
     let mut pending_rpcs: HashMap<String, tokio::sync::oneshot::Sender<Result<serde_json::Value, String>>> = HashMap::new();
 
+    // Buffer RPC requests that arrive before authentication completes.
+    let mut auth_pending: Vec<RpcRequest> = Vec::new();
+
     loop {
         tokio::select! {
             _ = tokio::time::sleep(std::time::Duration::from_millis(100)), if shutdown.load(std::sync::atomic::Ordering::Relaxed) => {
@@ -550,6 +553,9 @@ pub async fn run_operator_loop(
                     Some(Err(e)) => {
                         for (_, tx) in pending_rpcs.drain() {
                             let _ = tx.send(Err("operator connection lost".to_string()));
+                        }
+                        for req in auth_pending.drain(..) {
+                            let _ = req.response_tx.send(Err("operator connection lost".to_string()));
                         }
                         return Err(format!("Operator WS read error: {e}"));
                     }
@@ -628,12 +634,31 @@ pub async fn run_operator_loop(
                                         if frame.ok {
                                             authenticated = true;
                                             eprintln!("[operator_ws] authenticated as operator");
+
+                                            // Flush buffered RPC requests now that we're authenticated
+                                            for req in auth_pending.drain(..) {
+                                                let outgoing = serde_json::json!({
+                                                    "type": "req",
+                                                    "id": req.id,
+                                                    "method": req.method,
+                                                    "params": req.params,
+                                                });
+                                                if let Err(e) = write.send(Message::Text(outgoing.to_string())).await {
+                                                    let _ = req.response_tx.send(Err(format!("write error: {e}")));
+                                                } else {
+                                                    pending_rpcs.insert(req.id, req.response_tx);
+                                                }
+                                            }
                                         } else {
                                             let err = frame.error
                                                 .as_ref()
                                                 .and_then(|e| e.get("message"))
                                                 .and_then(|m| m.as_str())
                                                 .unwrap_or("auth failed");
+                                            // Reject all buffered requests
+                                            for req in auth_pending.drain(..) {
+                                                let _ = req.response_tx.send(Err(format!("Operator auth failed: {err}")));
+                                            }
                                             return Err(format!("Operator auth failed: {err}"));
                                         }
                                     }
@@ -652,7 +677,9 @@ pub async fn run_operator_loop(
             rpc_req = rpc_rx.recv() => {
                 if let Some(req) = rpc_req {
                     if !authenticated {
-                        let _ = req.response_tx.send(Err("operator not authenticated yet".to_string()));
+                        // Buffer the request — it will be sent once authentication completes
+                        eprintln!("[operator_ws] buffering RPC '{}' until authenticated", req.method);
+                        auth_pending.push(req);
                         continue;
                     }
                     let outgoing = serde_json::json!({
@@ -695,6 +722,9 @@ pub async fn run_operator_loop(
 
     for (_, tx) in pending_rpcs.drain() {
         let _ = tx.send(Err("operator connection closed".to_string()));
+    }
+    for req in auth_pending.drain(..) {
+        let _ = req.response_tx.send(Err("operator connection closed before authentication".to_string()));
     }
 
     Ok(())

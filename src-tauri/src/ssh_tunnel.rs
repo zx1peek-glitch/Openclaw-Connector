@@ -229,6 +229,28 @@ pub fn is_port_in_use(port: u16) -> bool {
     std::net::TcpListener::bind(("127.0.0.1", port)).is_err()
 }
 
+/// Kill whatever process is holding a TCP port (macOS/Linux only).
+/// Only call this after explicit user confirmation.
+pub fn kill_port_holder(port: u16) {
+    let output = Command::new("lsof")
+        .args(["-ti", &format!("tcp:{port}")])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .output();
+
+    if let Ok(out) = output {
+        let pids = String::from_utf8_lossy(&out.stdout);
+        for pid in pids.trim().lines() {
+            if let Ok(n) = pid.trim().parse::<u32>() {
+                eprintln!("[ssh_tunnel] killing port {port} holder pid {n}");
+                let _ = Command::new("kill").arg(n.to_string()).output();
+            }
+        }
+        // Brief pause to let the OS release the port
+        std::thread::sleep(std::time::Duration::from_millis(300));
+    }
+}
+
 /// A separate SSH process for reverse-forwarding the CDP port.
 #[derive(Debug, Default)]
 pub struct CdpTunnel {
