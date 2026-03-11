@@ -43,7 +43,13 @@ fn generate_node_id() -> String {
 }
 
 fn default_node_name() -> String {
-    "OpenClaw Connector (macOS)".to_string()
+    let os = match std::env::consts::OS {
+        "macos" => "macOS",
+        "windows" => "Windows",
+        "linux" => "Linux",
+        other => other,
+    };
+    format!("OpenClaw Connector ({os})")
 }
 
 fn default_cdp_port() -> u16 {

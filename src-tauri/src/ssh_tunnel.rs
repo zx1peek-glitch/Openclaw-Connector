@@ -229,26 +229,56 @@ pub fn is_port_in_use(port: u16) -> bool {
     std::net::TcpListener::bind(("127.0.0.1", port)).is_err()
 }
 
-/// Kill whatever process is holding a TCP port (macOS/Linux only).
+/// Kill whatever process is holding a TCP port.
 /// Only call this after explicit user confirmation.
 pub fn kill_port_holder(port: u16) {
-    let output = Command::new("lsof")
-        .args(["-ti", &format!("tcp:{port}")])
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .output();
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    {
+        let output = Command::new("lsof")
+            .args(["-ti", &format!("tcp:{port}")])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .output();
 
-    if let Ok(out) = output {
-        let pids = String::from_utf8_lossy(&out.stdout);
-        for pid in pids.trim().lines() {
-            if let Ok(n) = pid.trim().parse::<u32>() {
-                eprintln!("[ssh_tunnel] killing port {port} holder pid {n}");
-                let _ = Command::new("kill").arg(n.to_string()).output();
+        if let Ok(out) = output {
+            let pids = String::from_utf8_lossy(&out.stdout);
+            for pid in pids.trim().lines() {
+                if let Ok(n) = pid.trim().parse::<u32>() {
+                    eprintln!("[ssh_tunnel] killing port {port} holder pid {n}");
+                    let _ = Command::new("kill").arg(n.to_string()).output();
+                }
             }
         }
-        // Brief pause to let the OS release the port
-        std::thread::sleep(std::time::Duration::from_millis(300));
     }
+
+    #[cfg(target_os = "windows")]
+    {
+        let output = Command::new("netstat")
+            .args(["-ano"])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .output();
+
+        if let Ok(out) = output {
+            let text = String::from_utf8_lossy(&out.stdout);
+            let port_str = format!(":{port}");
+            for line in text.lines() {
+                if line.contains(&port_str) && line.contains("LISTENING") {
+                    if let Some(pid) = line.split_whitespace().last() {
+                        if let Ok(n) = pid.parse::<u32>() {
+                            eprintln!("[ssh_tunnel] killing port {port} holder pid {n}");
+                            let _ = Command::new("taskkill")
+                                .args(["/F", "/PID", &n.to_string()])
+                                .output();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Brief pause to let the OS release the port
+    std::thread::sleep(std::time::Duration::from_millis(300));
 }
 
 /// A separate SSH process for reverse-forwarding the CDP port.

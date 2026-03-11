@@ -8,6 +8,11 @@ use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::client::IntoClientRequest;
 use tokio_tungstenite::tungstenite::Message;
 
+/// Return the platform identifier for WebSocket auth payloads.
+fn current_platform() -> &'static str {
+    std::env::consts::OS
+}
+
 /// Events emitted from the WebSocket client to the UI layer.
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
@@ -358,7 +363,7 @@ fn build_connect_request(
         signed_at_ms,
         gateway_token,
         nonce,
-        "darwin",
+        current_platform(),
     );
 
     let signature = device_identity::sign_payload(&identity.private_key_pem, &payload)
@@ -377,7 +382,7 @@ fn build_connect_request(
                 "id": "node-host",
                 "displayName": node_name,
                 "version": "0.1.0",
-                "platform": "darwin",
+                "platform": current_platform(),
                 "mode": "node",
                 "instanceId": node_id
             },
@@ -605,7 +610,7 @@ pub async fn run_operator_loop(
                                             "client": {
                                                 "id": "openclaw-control-ui",
                                                 "version": "0.1.0",
-                                                "platform": "darwin",
+                                                "platform": current_platform(),
                                                 "mode": "webchat",
                                                 "instanceId": "connector-operator"
                                             },

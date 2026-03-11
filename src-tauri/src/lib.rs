@@ -235,7 +235,7 @@ fn connect(
 
             if was_connected && !is_connected {
                 let _ = health_app.emit("node-event", &ws_client::NodeEvent::Error {
-                    message: "SSH 隧道断开，正在自动重连...".to_string(),
+                    message: "tunnel_reconnecting".to_string(),
                 });
 
                 let mut reconnected = false;
@@ -270,7 +270,7 @@ fn connect(
 
                 if !reconnected {
                     let _ = health_app.emit("node-event", &ws_client::NodeEvent::Error {
-                        message: "SSH 隧道自动重连失败，请手动重新连接".to_string(),
+                        message: "tunnel_reconnect_failed".to_string(),
                     });
                 }
             }
@@ -551,11 +551,7 @@ fn get_browser_status(state: tauri::State<'_, AppState>) -> Result<BrowserStatus
 
 #[tauri::command]
 fn open_url(url: String) -> Result<(), String> {
-    std::process::Command::new("open")
-        .arg(&url)
-        .spawn()
-        .map_err(|e| format!("failed to open URL: {e}"))?;
-    Ok(())
+    open::that(&url).map_err(|e| format!("failed to open URL: {e}"))
 }
 
 pub fn run() {

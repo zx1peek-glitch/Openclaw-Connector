@@ -30,15 +30,10 @@ impl BrowserManager {
         Self::default()
     }
 
-    /// Locate a Chrome-compatible binary on macOS.
+    /// Locate a Chrome-compatible binary on the current platform.
     /// Checks Google Chrome, Chrome Canary, Chromium, and Microsoft Edge.
     pub fn find_chrome_binary() -> Result<String, String> {
-        let candidates = [
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
-            "/Applications/Chromium.app/Contents/MacOS/Chromium",
-            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-        ];
+        let candidates = platform_chrome_candidates();
 
         for path in &candidates {
             if std::path::Path::new(path).exists() {
@@ -142,6 +137,36 @@ impl BrowserManager {
             pid,
         }
     }
+}
+
+#[cfg(target_os = "macos")]
+fn platform_chrome_candidates() -> Vec<&'static str> {
+    vec![
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
+        "/Applications/Chromium.app/Contents/MacOS/Chromium",
+        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    ]
+}
+
+#[cfg(target_os = "linux")]
+fn platform_chrome_candidates() -> Vec<&'static str> {
+    vec![
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/microsoft-edge",
+    ]
+}
+
+#[cfg(target_os = "windows")]
+fn platform_chrome_candidates() -> Vec<&'static str> {
+    vec![
+        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+    ]
 }
 
 /// Check if something is listening on the CDP port by attempting a TCP connection.
