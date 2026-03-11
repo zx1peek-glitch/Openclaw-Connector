@@ -55,6 +55,7 @@ type BrowserStatusResponse = {
 export function ConnectionPage() {
   const { t } = useTranslation();
   const config = useConfigStore((s) => s.config);
+  const loaded = useConfigStore((s) => s.loaded);
   const patchConfig = useConfigStore((s) => s.patchConfig);
   const [server, setServer] = useState(config.server);
   const [gatewayToken, setGatewayToken] = useState(config.gatewayToken);
@@ -84,6 +85,17 @@ export function ConnectionPage() {
   const [cdpPort, setCdpPort] = useState(config.cdpPort);
   const [cdpRemotePort, setCdpRemotePort] = useState(config.cdpRemotePort);
   const [latencyMs, setLatencyMs] = useState(0);
+
+  // Sync local state when backend config loads asynchronously
+  useEffect(() => {
+    if (loaded) {
+      setServer(config.server);
+      setGatewayToken(config.gatewayToken);
+      setNodeName(config.nodeName);
+      setCdpPort(config.cdpPort);
+      setCdpRemotePort(config.cdpRemotePort);
+    }
+  }, [loaded]);
 
   // Poll connection status
   useEffect(() => {
