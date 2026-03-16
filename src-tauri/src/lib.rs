@@ -595,6 +595,129 @@ fn detect_local_gateway() -> Result<DetectGatewayResult, String> {
     Ok(DetectGatewayResult { token, port })
 }
 
+#[tauri::command]
+fn test_ssh_connection(host: String, user: String, key_path: Option<String>) -> Result<(), String> {
+    if host.trim().is_empty() {
+        return Err("host cannot be empty".to_string());
+    }
+    if user.trim().is_empty() {
+        return Err("user cannot be empty".to_string());
+    }
+
+    let key = key_path.unwrap_or_else(|| "~/.ssh/id_ed25519".to_string());
+
+    // Resolve ~ in key path
+    let resolved_key = if let Some(rest) = key.strip_prefix("~/") {
+        match std::env::var("HOME") {
+            Ok(home) => format!("{home}/{rest}"),
+            Err(_) => key.clone(),
+        }
+    } else {
+        key.clone()
+    };
+
+    // Test mode for integration tests
+    if std::env::var("OPENCLAW_CONNECTOR_FAKE_TUNNEL").as_deref() == Ok("1") {
+        return Ok(());
+    }
+
+    let output = std::process::Command::new("ssh")
+        .args([
+            "-o", "BatchMode=yes",
+            "-o", "ConnectTimeout=10",
+            "-o", "StrictHostKeyChecking=accept-new",
+            "-i", &resolved_key,
+            &format!("{user}@{host}"),
+            "echo", "ok",
+        ])
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .output()
+        .map_err(|e| format!("failed to run ssh: {e}"))?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let msg = stderr.trim();
+        if msg.is_empty() {
+            Err(format!("SSH connection failed (exit code {})", output.status))
+        } else {
+            Err(msg.to_string())
+        }
+    }
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RemoteGatewayConfig {
+    token: String,
+    port: u16,
+}
+
+#[tauri::command]
+fn read_remote_gateway_config(host: String, user: String, key_path: Option<String>) -> Result<RemoteGatewayConfig, String> {
+    let key = key_path.unwrap_or_else(|| "~/.ssh/id_ed25519".to_string());
+
+    let resolved_key = if let Some(rest) = key.strip_prefix("~/") {
+        match std::env::var("HOME") {
+            Ok(home) => format!("{home}/{rest}"),
+            Err(_) => key.clone(),
+        }
+    } else {
+        key.clone()
+    };
+
+    // Test mode
+    if std::env::var("OPENCLAW_CONNECTOR_FAKE_TUNNEL").as_deref() == Ok("1") {
+        return Ok(RemoteGatewayConfig {
+            token: "fake-token".to_string(),
+            port: 18789,
+        });
+    }
+
+    let output = std::process::Command::new("ssh")
+        .args([
+            "-o", "BatchMode=yes",
+            "-o", "ConnectTimeout=10",
+            "-o", "StrictHostKeyChecking=accept-new",
+            "-i", &resolved_key,
+            &format!("{user}@{host}"),
+            "cat", "~/.openclaw/openclaw.json",
+        ])
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .output()
+        .map_err(|e| format!("failed to run ssh: {e}"))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        return Err(if stderr.is_empty() {
+            "failed to read remote openclaw.json".to_string()
+        } else {
+            stderr
+        });
+    }
+
+    let content = String::from_utf8_lossy(&output.stdout);
+    let val: serde_json::Value = serde_json::from_str(&content)
+        .map_err(|e| format!("failed to parse remote openclaw.json: {e}"))?;
+
+    let token = val
+        .pointer("/gateway/auth/token")
+        .and_then(|v| v.as_str())
+        .ok_or("gateway.auth.token not found in remote openclaw.json")?
+        .to_string();
+    let port = val
+        .pointer("/gateway/port")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(18789) as u16;
+
+    Ok(RemoteGatewayConfig { token, port })
+}
+
 pub fn run() {
     tauri::Builder::default()
         .manage(AppState::default())
@@ -607,6 +730,8 @@ pub fn run() {
             get_health_summary,
             open_url,
             detect_local_gateway,
+            test_ssh_connection,
+            read_remote_gateway_config,
             list_agents,
             list_sessions,
             inject_message,
