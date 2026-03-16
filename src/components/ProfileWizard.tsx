@@ -92,7 +92,7 @@ export function ProfileWizard({ onCreated, onCancel }: Props) {
       })
       .catch(() => {})
       .finally(() => setKeysLoading(false));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reset SSH status when any Step 1 field changes
   useEffect(() => {
@@ -135,14 +135,14 @@ export function ProfileWizard({ onCreated, onCancel }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Set default profile name when entering Step 3
   useEffect(() => {
     if (step === 3 && !profileName) {
       setProfileName(`${user}@${host}`);
     }
-  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // --- Cleanup helper ---
   const cleanupTempProfile = useCallback(async () => {
