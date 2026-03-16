@@ -4,7 +4,7 @@ import { useConfigStore } from "../store/useConfigStore";
 import { removeProfile, setActiveProfileId } from "../store/useProfileStore";
 import { ProfileSidebar } from "../components/ProfileSidebar";
 import { ProfileDetail } from "../components/ProfileDetail";
-import { NewProfileForm } from "../components/NewProfileForm";
+import { ProfileWizard } from "../components/ProfileWizard";
 
 export function ConnectionPage() {
   const { t } = useTranslation();
@@ -18,7 +18,6 @@ export function ConnectionPage() {
 
   const handleDelete = () => {
     if (config.profiles.length <= 1 || !activeProfile) return;
-    if (!confirm(t("profile.confirm_delete", { name: activeProfile.name }))) return;
     removeProfile(activeProfile.id);
   };
 
@@ -32,7 +31,7 @@ export function ConnectionPage() {
       </div>
       <div className="overflow-y-auto">
         {mode === "new" ? (
-          <NewProfileForm
+          <ProfileWizard
             onCreated={(id) => {
               setActiveProfileId(id);
               setMode("view");
@@ -44,7 +43,8 @@ export function ConnectionPage() {
             profile={activeProfile}
             onConnected={(id) => setConnectedProfileId(id)}
             onDisconnected={() => setConnectedProfileId(null)}
-            onDelete={config.profiles.length > 1 ? handleDelete : undefined}
+            onDelete={handleDelete}
+            canDelete={config.profiles.length > 1}
           />
         ) : (
           <div className="h-full flex items-center justify-center text-muted-foreground">
