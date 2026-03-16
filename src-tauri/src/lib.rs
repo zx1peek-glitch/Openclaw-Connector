@@ -832,6 +832,26 @@ fn read_ssh_public_key(key_path: String) -> Result<String, String> {
         .map_err(|_| format!("public key not found: {}", pub_path.display()))
 }
 
+#[tauri::command]
+async fn export_diagnostics(json_content: String) -> Result<bool, String> {
+    let handle = rfd::AsyncFileDialog::new()
+        .set_title("Export Diagnostics")
+        .set_file_name("openclaw-diagnostics.json")
+        .add_filter("JSON", &["json"])
+        .save_file()
+        .await;
+
+    match handle {
+        Some(file) => {
+            file.write(json_content.as_bytes())
+                .await
+                .map_err(|e| format!("Failed to write file: {}", e))?;
+            Ok(true)
+        }
+        None => Ok(false),
+    }
+}
+
 pub fn run() {
     tauri::Builder::default()
         .manage(AppState::default())
@@ -856,6 +876,7 @@ pub fn run() {
             start_browser,
             stop_browser,
             get_browser_status,
+            export_diagnostics,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
