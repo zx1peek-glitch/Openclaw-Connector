@@ -15,7 +15,7 @@ fn health_summary_reflects_tunnel_state() {
 
     // After connecting: tunnel connected
     let cfg = connector::config::AppConfig::default();
-    let mut server = cfg.server;
+    let mut server = cfg.profiles[0].server.clone();
     server.user = "tester".to_string();
     server.key_path = "/tmp/fake_key".to_string();
     tunnel.start(server).unwrap();
