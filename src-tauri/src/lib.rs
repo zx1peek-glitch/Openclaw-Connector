@@ -66,12 +66,23 @@ fn save_app_config(app_handle: tauri::AppHandle, cfg: config::AppConfig) -> Resu
 fn connect(
     app_handle: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
-    server: config::ServerConfig,
-    gateway_token: String,
-    node_id: String,
-    node_name: String,
+    profile_id: String,
     force: Option<bool>,
 ) -> Result<ssh_tunnel::TunnelStatus, String> {
+    // Load config and find profile
+    let config_path = config_path(&app_handle)?;
+    let app_config = config::load_config(&config_path)?;
+    let profile = app_config
+        .profiles
+        .iter()
+        .find(|p| p.id == profile_id)
+        .ok_or_else(|| format!("profile not found: {profile_id}"))?;
+
+    let server = profile.server.clone();
+    let gateway_token = profile.gateway_token.clone();
+    let node_id = profile.node_id.clone();
+    let node_name = profile.node_name.clone();
+
     // Load or create device identity for node-host authentication
     let identity_path = app_handle
         .path()
