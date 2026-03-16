@@ -80,7 +80,7 @@
     "ssh_guide_title": "如何让服务器信任这个密钥？",
     "ssh_guide_quick_title": "快捷方式：发给 OpenClaw",
     "ssh_guide_quick_desc": "复制以下内容，发送给 OpenClaw AI，它会自动帮你完成配置：",
-    "ssh_guide_quick_prompt": "请将以下 SSH 公钥添加到服务器 {{host}} 的用户 {{user}} 的 ~/.ssh/authorized_keys 文件中（如果文件不存在请创建），并设置正确的权限（目录 700，文件 600）：\n\n{{key}}",
+    "ssh_guide_quick_prompt": "在本机直接操作（不要 SSH 连接远程服务器），将以下公钥追加到本地用户 {{user}} 的 ~/.ssh/authorized_keys 文件中（目录不存在则创建，目录权限 700，文件权限 600）：\n\n{{key}}",
     "ssh_guide_copy_prompt": "复制 Prompt",
     "ssh_guide_prompt_copied": "已复制！",
     "ssh_guide_manual_title": "手动配置",

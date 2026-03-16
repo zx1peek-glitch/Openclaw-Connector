@@ -80,7 +80,7 @@
     "ssh_guide_title": "How to authorize this key on the server?",
     "ssh_guide_quick_title": "Quick: Send to OpenClaw",
     "ssh_guide_quick_desc": "Copy the following and send it to OpenClaw AI, it will configure the key automatically:",
-    "ssh_guide_quick_prompt": "Please add the following SSH public key to the ~/.ssh/authorized_keys file of user {{user}} on server {{host}} (create the file if it doesn't exist), and set correct permissions (directory 700, file 600):\n\n{{key}}",
+    "ssh_guide_quick_prompt": "On this local machine (do NOT SSH to a remote server), append the following public key to local user {{user}}'s ~/.ssh/authorized_keys (create dir if needed, dir 700, file 600):\n\n{{key}}",
     "ssh_guide_copy_prompt": "Copy Prompt",
     "ssh_guide_prompt_copied": "Copied!",
     "ssh_guide_manual_title": "Manual Setup",
