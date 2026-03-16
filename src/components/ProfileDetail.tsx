@@ -353,8 +353,8 @@ export function ProfileDetail({ profile, onConnected, onDisconnected, onDelete, 
       ? `\n\n[浏览器可用] 用户已将本地浏览器暴露给当前会话。\n- CDP 地址: 127.0.0.1:${cdpRemotePort}\n- 你可以使用任意支持 CDP 的浏览器自动化工具连接此地址，对用户的本地浏览器执行打开页面、查看 tab、截图、点击、输入等操作。\n- 重要：此处 127.0.0.1:${cdpRemotePort} 不是你服务器上的本地回环地址，而是用户通过隧道暴露给你的浏览器入口，在当前会话中可直接连接。\n- 收到此地址后，应优先尝试通过 CDP 连接浏览器再进行操作。`
       : "";
     const message = isLinked
-      ? `[系统通知] 本地节点 "${nodeName}" 已断开，不再可用。`
-      : `[系统通知] 本地节点 "${nodeName}" 已连接。\n- Node ID: ${nodeId}\n- 环境: 本地\n- 能力: 命令执行 (system.run)\n\n当用户的请求需要在本地环境执行时，你可以使用这个节点。${cdpBlock}`;
+      ? `[系统通知] 本地节点 "${nodeName}" 已断开，不再可用。如果之前已切换到该节点执行，请提醒用户输入 /exec host=bridge 切回默认环境。`
+      : `[系统通知] 本地节点 "${nodeName}" 已连接。\n- Node ID: ${nodeId}\n- 环境: 本地\n- 能力: 命令执行 (system.run)\n\n重要：当用户要求你在其本地机器上执行命令时，你必须先提醒用户在对话中输入 /exec host=node 来切换执行目标，否则命令会因权限不足而报错。用户完成本地任务后，应提醒其输入 /exec host=bridge 切回默认环境。${cdpBlock}`;
     try {
       await invoke("inject_message", { sessionKey, content: message });
       setNotifiedSessions((prev) => {
@@ -401,7 +401,7 @@ export function ProfileDetail({ profile, onConnected, onDisconnected, onDelete, 
     // Send disconnect notifications to all notified sessions
     if (notifiedSessions.size > 0) {
       pushActivity("info", t("events.disconnect_notify", { count: notifiedSessions.size }));
-      const disconnectMsg = `[系统通知] 本地节点 "${nodeName}" 已断开，不再可用。`;
+      const disconnectMsg = `[系统通知] 本地节点 "${nodeName}" 已断开，不再可用。如果之前已切换到该节点执行，请提醒用户输入 /exec host=bridge 切回默认环境。`;
       for (const sessionKey of notifiedSessions) {
         try {
           await invoke("inject_message", { sessionKey, content: disconnectMsg });
