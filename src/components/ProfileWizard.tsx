@@ -64,6 +64,8 @@ export function ProfileWizard({ onCreated, onCancel }: Props) {
   const [creatingKey, setCreatingKey] = useState(false);
   const [publicKey, setPublicKey] = useState("");
   const [copied, setCopied] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
+  const [showManual, setShowManual] = useState(false);
 
   // --- Step 2 fields ---
   const [token, setToken] = useState("");
@@ -183,6 +185,13 @@ export function ProfileWizard({ onCreated, onCancel }: Props) {
     await navigator.clipboard.writeText(publicKey);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyPrompt = async () => {
+    const prompt = t("wizard.ssh_guide_quick_prompt", { host, user, key: publicKey });
+    await navigator.clipboard.writeText(prompt);
+    setPromptCopied(true);
+    setTimeout(() => setPromptCopied(false), 2000);
   };
 
   const testSsh = async () => {
@@ -427,38 +436,96 @@ export function ProfileWizard({ onCreated, onCancel }: Props) {
               )}
             </div>
 
-            {/* SSH failure guide: show public key + copy + ssh-copy-id hint */}
+            {/* SSH failure guide: two sections */}
             {sshStatus.state === "error" && publicKey && (
-              <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+              <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-4">
                 <p className="text-sm font-medium text-foreground">
                   {t("wizard.ssh_guide_title")}
                 </p>
-                <div className="relative">
-                  <pre className="text-xs bg-background rounded-md p-3 pr-10 overflow-x-auto border border-border font-mono break-all whitespace-pre-wrap">
-                    {publicKey}
-                  </pre>
+
+                {/* Section 1: Quick — copy prompt for OpenClaw AI */}
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-2">
+                  <p className="text-sm font-semibold text-primary">
+                    {t("wizard.ssh_guide_quick_title")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("wizard.ssh_guide_quick_desc")}
+                  </p>
+                  <div className="relative">
+                    <pre className="text-xs bg-background rounded-md p-3 pr-10 overflow-x-auto border border-border font-mono break-all whitespace-pre-wrap max-h-32 overflow-y-auto">
+                      {t("wizard.ssh_guide_quick_prompt", { host, user, key: publicKey })}
+                    </pre>
+                  </div>
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 h-7 w-7"
-                    onClick={copyPublicKey}
+                    variant={promptCopied ? "outline" : "default"}
+                    size="sm"
+                    className="w-full"
+                    onClick={copyPrompt}
                   >
-                    {copied ? (
-                      <Check className="w-3.5 h-3.5 text-primary" />
+                    {promptCopied ? (
+                      <><Check className="w-3.5 h-3.5 mr-1" />{t("wizard.ssh_guide_prompt_copied")}</>
                     ) : (
-                      <Copy className="w-3.5 h-3.5" />
+                      <><Copy className="w-3.5 h-3.5 mr-1" />{t("wizard.ssh_guide_copy_prompt")}</>
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {t("wizard.ssh_guide_hint")}
-                </p>
-                <pre className="text-xs bg-background rounded-md p-2 overflow-x-auto border border-border font-mono">
-                  ssh-copy-id -i {keyPath} {user ? `${user}@` : ""}{host}
-                </pre>
-                <p className="text-xs text-muted-foreground">
-                  {t("wizard.ssh_guide_or")}
-                </p>
+
+                {/* Section 2: Manual — for tech users */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowManual((v) => !v)}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showManual ? "" : "-rotate-90"}`} />
+                    {t("wizard.ssh_guide_manual_title")}
+                  </button>
+                  {showManual && (
+                    <div className="mt-2 space-y-3 pl-1">
+                      {/* Method 1: ssh-copy-id on local machine */}
+                      <div className="space-y-1.5">
+                        <p className="text-xs font-medium text-foreground">
+                          {t("wizard.ssh_guide_method1")}
+                        </p>
+                        <pre className="text-xs bg-background rounded-md p-2 overflow-x-auto border border-border font-mono">
+                          ssh-copy-id -i {keyPath} {user ? `${user}@` : ""}{host}
+                        </pre>
+                      </div>
+
+                      <div className="border-t border-border" />
+
+                      {/* Method 2: manually copy public key */}
+                      <div className="space-y-1.5">
+                        <p className="text-xs font-medium text-foreground">
+                          {t("wizard.ssh_guide_method2")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("wizard.ssh_guide_method2_step1")}
+                        </p>
+                        <div className="relative">
+                          <pre className="text-xs bg-background rounded-md p-3 pr-10 overflow-x-auto border border-border font-mono break-all whitespace-pre-wrap">
+                            {publicKey}
+                          </pre>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-2 right-2 h-7 w-7"
+                            onClick={copyPublicKey}
+                          >
+                            {copied ? (
+                              <Check className="w-3.5 h-3.5 text-primary" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("wizard.ssh_guide_method2_step2")}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

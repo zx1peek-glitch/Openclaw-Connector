@@ -23,7 +23,6 @@ export function ProfileSidebar({ onNewProfile, connectedProfileId }: Props) {
   const handleDelete = (e: React.MouseEvent, profile: ConnectionProfile) => {
     e.stopPropagation();
     if (profiles.length <= 1) return;
-    if (!confirm(t("profile.confirm_delete", { name: profile.name }))) return;
     removeProfile(profile.id);
   };
 

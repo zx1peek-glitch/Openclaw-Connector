@@ -69,6 +69,9 @@ export function NewProfileForm({ onCreated, onCancel }: Props) {
               value={host}
               onChange={(e) => setHost(e.target.value)}
               placeholder="192.168.1.100"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
             />
           </div>
           <div>
@@ -79,6 +82,9 @@ export function NewProfileForm({ onCreated, onCancel }: Props) {
               value={user}
               onChange={(e) => setUser(e.target.value)}
               placeholder="root"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
             />
           </div>
         </div>
