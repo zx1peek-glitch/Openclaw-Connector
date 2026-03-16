@@ -35,6 +35,23 @@
     "force_connect": "强制释放端口并连接",
     "recent_error": "最近错误：{{msg}}"
   },
+  "profile": {
+    "sidebar_title": "连接配置",
+    "new": "新建连接",
+    "select_hint": "选择或新建一个连接配置",
+    "name": "配置名称",
+    "name_placeholder": "例：我的 OpenClaw",
+    "save": "保存",
+    "cancel": "取消",
+    "edit": "编辑",
+    "delete": "删除",
+    "confirm_delete": "确定删除配置「{{name}}」？",
+    "advanced": "高级设置",
+    "auto_detected": "已自动检测本地 Gateway",
+    "detect_failed": "未检测到本地 Gateway，请手动填写",
+    "detecting": "检测本地 Gateway...",
+    "creating": "创建配置中..."
+  },
   "browser": {
     "title": "浏览器自动化",
     "status_tunnel_ready": "隧道就绪",

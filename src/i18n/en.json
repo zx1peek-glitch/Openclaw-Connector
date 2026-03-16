@@ -35,6 +35,23 @@
     "force_connect": "Force release port and connect",
     "recent_error": "Recent error: {{msg}}"
   },
+  "profile": {
+    "sidebar_title": "Profiles",
+    "new": "New Connection",
+    "select_hint": "Select or create a connection profile",
+    "name": "Profile Name",
+    "name_placeholder": "e.g. My OpenClaw",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm_delete": "Delete profile \"{{name}}\"?",
+    "advanced": "Advanced Settings",
+    "auto_detected": "Local Gateway auto-detected",
+    "detect_failed": "No local Gateway found, enter manually",
+    "detecting": "Detecting local Gateway...",
+    "creating": "Creating profile..."
+  },
   "browser": {
     "title": "Browser Automation",
     "status_tunnel_ready": "Tunnel Ready",
