@@ -3,7 +3,11 @@ import App from "../App";
 
 // Mock Tauri API calls so they don't break tests
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(() => Promise.resolve({}))
+  invoke: vi.fn((cmd: string) => {
+    if (cmd === "load_app_config") return Promise.resolve(null);
+    if (cmd === "detect_local_gateway") return Promise.reject("not found");
+    return Promise.resolve({ tunnelState: "disconnected", wsConnected: false });
+  }),
 }));
 
 vi.mock("@tauri-apps/api/event", () => ({
