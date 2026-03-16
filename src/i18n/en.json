@@ -78,10 +78,18 @@
     "creating_key": "Generating key...",
     "key_created": "Key created",
     "ssh_guide_title": "How to authorize this key on the server?",
+    "ssh_guide_quick_title": "Quick: Send to OpenClaw",
+    "ssh_guide_quick_desc": "Copy the following and send it to OpenClaw AI, it will configure the key automatically:",
+    "ssh_guide_quick_prompt": "Please add the following SSH public key to the ~/.ssh/authorized_keys file of user {{user}} on server {{host}} (create the file if it doesn't exist), and set correct permissions (directory 700, file 600):\n\n{{key}}",
+    "ssh_guide_copy_prompt": "Copy Prompt",
+    "ssh_guide_prompt_copied": "Copied!",
+    "ssh_guide_manual_title": "Manual Setup",
+    "ssh_guide_method1": "Option A: Run in your local terminal (recommended)",
+    "ssh_guide_method2": "Option B: Manually add the public key to the server",
+    "ssh_guide_method2_step1": "1. Copy the public key below",
+    "ssh_guide_method2_step2": "2. Log into the server and append it to ~/.ssh/authorized_keys",
     "ssh_guide_copy_key": "Copy Public Key",
-    "ssh_guide_copied": "Copied!",
-    "ssh_guide_hint": "Send the public key to the server admin, or run:",
-    "ssh_guide_or": "Or manually append to the server's ~/.ssh/authorized_keys"
+    "ssh_guide_copied": "Copied!"
   },
   "browser": {
     "title": "Browser Automation",
@@ -112,7 +120,10 @@
   "activity": {
     "title": "Activity Log",
     "clear": "Clear",
-    "waiting": "> Waiting for events..."
+    "waiting": "> Waiting for events...",
+    "export": "Export Diagnostics",
+    "export_success": "Diagnostics exported",
+    "export_failed": "Export failed: {{msg}}"
   },
   "events": {
     "ws_connected": "WebSocket connected, authenticating...",

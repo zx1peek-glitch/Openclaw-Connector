@@ -78,10 +78,18 @@
     "creating_key": "生成密钥中...",
     "key_created": "密钥已创建",
     "ssh_guide_title": "如何让服务器信任这个密钥？",
+    "ssh_guide_quick_title": "快捷方式：发给 OpenClaw",
+    "ssh_guide_quick_desc": "复制以下内容，发送给 OpenClaw AI，它会自动帮你完成配置：",
+    "ssh_guide_quick_prompt": "请将以下 SSH 公钥添加到服务器 {{host}} 的用户 {{user}} 的 ~/.ssh/authorized_keys 文件中（如果文件不存在请创建），并设置正确的权限（目录 700，文件 600）：\n\n{{key}}",
+    "ssh_guide_copy_prompt": "复制 Prompt",
+    "ssh_guide_prompt_copied": "已复制！",
+    "ssh_guide_manual_title": "手动配置",
+    "ssh_guide_method1": "方法一：在本机终端运行（推荐）",
+    "ssh_guide_method2": "方法二：手动添加公钥到服务器",
+    "ssh_guide_method2_step1": "1. 复制下面的公钥",
+    "ssh_guide_method2_step2": "2. 登录服务器，追加到 ~/.ssh/authorized_keys",
     "ssh_guide_copy_key": "复制公钥",
-    "ssh_guide_copied": "已复制！",
-    "ssh_guide_hint": "将公钥发给服务器管理员，或运行以下命令：",
-    "ssh_guide_or": "或者手动追加到服务器的 ~/.ssh/authorized_keys"
+    "ssh_guide_copied": "已复制！"
   },
   "browser": {
     "title": "浏览器自动化",
@@ -112,7 +120,10 @@
   "activity": {
     "title": "活动日志",
     "clear": "清空",
-    "waiting": "> 等待事件..."
+    "waiting": "> 等待事件...",
+    "export": "导出诊断日志",
+    "export_success": "日志已导出",
+    "export_failed": "导出失败：{{msg}}"
   },
   "events": {
     "ws_connected": "WebSocket 已连接，正在认证...",
